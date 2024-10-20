@@ -1,4 +1,3 @@
-
 import { Construct } from 'constructs';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 
