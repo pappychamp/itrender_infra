@@ -3,6 +3,7 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { NetworkResources } from '../lib/network';
 import { ECRResources } from '../lib/ecr';
+import { SecurityGroupResources } from '../lib/sg';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'Itrender' ,{
@@ -13,7 +14,8 @@ const stack = new cdk.Stack(app, 'Itrender' ,{
 
 
 // ネットワークリソースを追加
-new NetworkResources(stack, 'NetworkResources');
+const networkResources =new NetworkResources(stack, 'NetworkResources');
 
 // ECRリソースを追加
 new ECRResources(stack, 'ECRResources');
+new SecurityGroupResources(stack, 'SecurityGroupResources',networkResources.vpc);
