@@ -1,5 +1,5 @@
 Resources:
-  VPCB9E5F0B4:
+  NetworkResourcesVPCD71E3A67:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
@@ -8,8 +8,8 @@ Resources:
       InstanceTenancy: default
       Tags:
         - Key: Name
-          Value: Itrender/VPC
-  VPCPublicSubnet1SubnetB4246D30:
+          Value: Itrender/NetworkResources/VPC
+  NetworkResourcesVPCPublicSubnet1Subnet6F6A3BBC:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone:
@@ -24,35 +24,35 @@ Resources:
         - Key: aws-cdk:subnet-type
           Value: Public
         - Key: Name
-          Value: Itrender/VPC/PublicSubnet1
+          Value: Itrender/NetworkResources/VPC/PublicSubnet1
       VpcId:
-        Ref: VPCB9E5F0B4
-  VPCPublicSubnet1RouteTableFEE4B781:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPublicSubnet1RouteTable6454E7A0:
     Type: AWS::EC2::RouteTable
     Properties:
       Tags:
         - Key: Name
-          Value: Itrender/VPC/PublicSubnet1
+          Value: Itrender/NetworkResources/VPC/PublicSubnet1
       VpcId:
-        Ref: VPCB9E5F0B4
-  VPCPublicSubnet1RouteTableAssociation0B0896DC:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPublicSubnet1RouteTableAssociationA850997F:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPCPublicSubnet1RouteTableFEE4B781
+        Ref: NetworkResourcesVPCPublicSubnet1RouteTable6454E7A0
       SubnetId:
-        Ref: VPCPublicSubnet1SubnetB4246D30
-  VPCPublicSubnet1DefaultRoute91CEF279:
+        Ref: NetworkResourcesVPCPublicSubnet1Subnet6F6A3BBC
+  NetworkResourcesVPCPublicSubnet1DefaultRouteDE0C2A2C:
     Type: AWS::EC2::Route
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId:
-        Ref: VPCIGWB7E252D3
+        Ref: NetworkResourcesVPCIGW7EB493C1
       RouteTableId:
-        Ref: VPCPublicSubnet1RouteTableFEE4B781
+        Ref: NetworkResourcesVPCPublicSubnet1RouteTable6454E7A0
     DependsOn:
-      - VPCVPCGW99B986DC
-  VPCPrivateSubnet1Subnet8BCA10E0:
+      - NetworkResourcesVPCVPCGW3E431846
+  NetworkResourcesVPCPrivateSubnet1Subnet96D28963:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone:
@@ -67,35 +67,51 @@ Resources:
         - Key: aws-cdk:subnet-type
           Value: Isolated
         - Key: Name
-          Value: Itrender/VPC/PrivateSubnet1
+          Value: Itrender/NetworkResources/VPC/PrivateSubnet1
       VpcId:
-        Ref: VPCB9E5F0B4
-  VPCPrivateSubnet1RouteTableBE8A6027:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPrivateSubnet1RouteTableC3B50931:
     Type: AWS::EC2::RouteTable
     Properties:
       Tags:
         - Key: Name
-          Value: Itrender/VPC/PrivateSubnet1
+          Value: Itrender/NetworkResources/VPC/PrivateSubnet1
       VpcId:
-        Ref: VPCB9E5F0B4
-  VPCPrivateSubnet1RouteTableAssociation347902D1:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPrivateSubnet1RouteTableAssociation7A10B50D:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPCPrivateSubnet1RouteTableBE8A6027
+        Ref: NetworkResourcesVPCPrivateSubnet1RouteTableC3B50931
       SubnetId:
-        Ref: VPCPrivateSubnet1Subnet8BCA10E0
-  VPCIGWB7E252D3:
+        Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
+  NetworkResourcesVPCIGW7EB493C1:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: Name
-          Value: Itrender/VPC
-  VPCVPCGW99B986DC:
+          Value: Itrender/NetworkResources/VPC
+  NetworkResourcesVPCVPCGW3E431846:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       InternetGatewayId:
-        Ref: VPCIGWB7E252D3
+        Ref: NetworkResourcesVPCIGW7EB493C1
       VpcId:
-        Ref: VPCB9E5F0B4
+        Ref: NetworkResourcesVPCD71E3A67
+  ECRResourcesBatchRepositoryF70A7F5B:
+    Type: AWS::ECR::Repository
+    Properties:
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      RepositoryName: batch
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+  ECRResourcesBackendRepository0DE1D09D:
+    Type: AWS::ECR::Repository
+    Properties:
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      RepositoryName: backend
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
 
