@@ -114,4 +114,20 @@ Resources:
       RepositoryName: backend
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
+  SecurityGroupResourcesTestSGEEF46167:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: test sg
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow HTTP traffic
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
 
