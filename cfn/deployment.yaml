@@ -1,0 +1,3 @@
+template-file-path: cfn/template.yaml
+parameters: {}
+tags: {}
