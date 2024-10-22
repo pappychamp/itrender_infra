@@ -268,4 +268,3 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       RoleName: TaskExecutionRole
-
