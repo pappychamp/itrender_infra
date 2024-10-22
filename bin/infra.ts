@@ -4,6 +4,11 @@ import * as cdk from "aws-cdk-lib";
 import { NetworkResources } from "../lib/network";
 import { ECRResources } from "../lib/ecr";
 import { SecurityGroupResources } from "../lib/sg";
+import { IAMResources } from "../lib/iam";
+import { ECSResources } from "../lib/ecs";
+import { EventBridgeResources } from "../lib/eventbridge";
+import { RDSResources } from "../lib/rds";
+import { S3Resources } from "../lib/s3";
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, "Itrender", {
@@ -14,11 +19,36 @@ const stack = new cdk.Stack(app, "Itrender", {
 
 // ネットワークリソースを追加
 const networkResources = new NetworkResources(stack, "NetworkResources");
-
 // ECRリソースを追加
-new ECRResources(stack, "ECRResources");
-new SecurityGroupResources(
+const ecrResources = new ECRResources(stack, "ECRResources");
+// SecurityGrouypを追加
+const securitygroupResources = new SecurityGroupResources(
   stack,
   "SecurityGroupResources",
   networkResources.vpc
+);
+// IAMリソースを追加
+const iamResources = new IAMResources(stack, "IAMResources");
+// S3リソースを追加
+const s3Resources = new S3Resources(stack,"S3Resources")
+// RDSリソースを追加
+const rdsResources = new RDSResources(
+  stack,
+  "RDSResources",
+  networkResources.vpc
+);
+// ECSリソースを追加
+const ecsResources = new ECSResources(
+  stack,
+  "ECSResources",
+  networkResources.vpc,
+  iamResources,
+  ecrResources,
+  rdsResources
+);
+// EventBridgeリソースを追加
+const eventbridgeResources = new EventBridgeResources(
+  stack,
+  "EventBridgeResources",
+  ecsResources
 );
