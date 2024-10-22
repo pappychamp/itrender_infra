@@ -268,4 +268,70 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       RoleName: TaskExecutionRole
+  RDSResourcesRDSInstanceSubnetGroup8A6EBCCD:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDSInstance database
+      SubnetIds:
+        - Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
+        - Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
+  RDSResourcesRDSInstanceSecurityGroupA0A02CFB:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for RDSInstance database
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow PostgreSQL access
+          FromPort: 5432
+          IpProtocol: tcp
+          ToPort: 5432
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  RDSResourcesRDSInstance6A09BF0E:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: "100"
+      BackupRetentionPeriod: 7
+      CopyTagsToSnapshot: true
+      DBInstanceClass: db.t3.micro
+      DBName:
+        Ref: RDSResourcesDBNameParameterF7365EAE
+      DBSubnetGroupName:
+        Ref: RDSResourcesRDSInstanceSubnetGroup8A6EBCCD
+      Engine: postgres
+      EngineVersion: "16.3"
+      MasterUserPassword: "{{resolve:ssm-secure:/itrender/POSTGRES_PASSWORD}}"
+      MasterUsername:
+        Ref: RDSResourcesDBUsernameParameterB33495DF
+      MaxAllocatedStorage: 500
+      MultiAZ: false
+      PubliclyAccessible: false
+      StorageType: gp2
+      VPCSecurityGroups:
+        - Fn::GetAtt:
+            - RDSResourcesRDSInstanceSecurityGroupA0A02CFB
+            - GroupId
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+  RDSResourcesRdsEndpointParameter5BEEE7E6:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: RDS Instance Endpoint
+      Name: /itrender/HOST_NAME
+      Type: String
+      Value:
+        Fn::GetAtt:
+          - RDSResourcesRDSInstance6A09BF0E
+          - Endpoint.Address
+Parameters:
+  RDSResourcesDBNameParameterF7365EAE:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /itrender/POSTGRES_DB
+  RDSResourcesDBUsernameParameterB33495DF:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /itrender/POSTGRES_USER
 
