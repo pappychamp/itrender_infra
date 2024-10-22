@@ -77,7 +77,7 @@ export class IAMResources extends Construct {
     );
     this.taskExecutionRole = new iam.Role(this, "TaskExecutionIAMRole", {
       roleName: "TaskExecutionRole",
-      description: "ECSタスク実行ロール",
+      description: "ECS task use role",
       assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"), // ECSタスクによるロールの引き受けを許可
     });
 

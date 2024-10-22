@@ -260,7 +260,7 @@ Resources:
             Principal:
               Service: ecs-tasks.amazonaws.com
         Version: "2012-10-17"
-      Description: ECSタスク実行ロール
+      Description: ECS task use role
       ManagedPolicyArns:
         - Fn::Join:
             - ""
@@ -268,3 +268,4 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       RoleName: TaskExecutionRole
+
