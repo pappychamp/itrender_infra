@@ -7,7 +7,7 @@ export class NetworkResources extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
     this.vpc = new ec2.Vpc(this, "VPC", {
-      maxAzs: 1, // 使用するアベイラビリティゾーンの数
+      maxAzs: 2, // 使用するアベイラビリティゾーンの数
       restrictDefaultSecurityGroup: false,
       subnetConfiguration: [
         {
