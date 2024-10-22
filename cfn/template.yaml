@@ -52,6 +52,49 @@ Resources:
         Ref: NetworkResourcesVPCPublicSubnet1RouteTable6454E7A0
     DependsOn:
       - NetworkResourcesVPCVPCGW3E431846
+  NetworkResourcesVPCPublicSubnet2Subnet49109E8D:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: Itrender/NetworkResources/VPC/PublicSubnet2
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPublicSubnet2RouteTable1A2F0874:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Itrender/NetworkResources/VPC/PublicSubnet2
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPublicSubnet2RouteTableAssociation8004F1DC:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkResourcesVPCPublicSubnet2RouteTable1A2F0874
+      SubnetId:
+        Ref: NetworkResourcesVPCPublicSubnet2Subnet49109E8D
+  NetworkResourcesVPCPublicSubnet2DefaultRoute2EA191E2:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: NetworkResourcesVPCIGW7EB493C1
+      RouteTableId:
+        Ref: NetworkResourcesVPCPublicSubnet2RouteTable1A2F0874
+    DependsOn:
+      - NetworkResourcesVPCVPCGW3E431846
   NetworkResourcesVPCPrivateSubnet1Subnet96D28963:
     Type: AWS::EC2::Subnet
     Properties:
@@ -59,7 +102,7 @@ Resources:
         Fn::Select:
           - 0
           - Fn::GetAZs: ""
-      CidrBlock: 10.0.1.0/24
+      CidrBlock: 10.0.2.0/24
       MapPublicIpOnLaunch: false
       Tags:
         - Key: aws-cdk:subnet-name
@@ -85,6 +128,39 @@ Resources:
         Ref: NetworkResourcesVPCPrivateSubnet1RouteTableC3B50931
       SubnetId:
         Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
+  NetworkResourcesVPCPrivateSubnet2Subnet2F126685:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Isolated
+        - Key: Name
+          Value: Itrender/NetworkResources/VPC/PrivateSubnet2
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPrivateSubnet2RouteTable01CD4248:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Itrender/NetworkResources/VPC/PrivateSubnet2
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkResourcesVPCPrivateSubnet2RouteTable01CD4248
+      SubnetId:
+        Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
   NetworkResourcesVPCIGW7EB493C1:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -130,4 +206,469 @@ Resources:
           ToPort: 80
       VpcId:
         Ref: NetworkResourcesVPCD71E3A67
+  IAMResourcesGithubOIDCProvider4827AF64:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+      Url: https://token.actions.githubusercontent.com
+  IAMResourcesGithubBatchRepoIAMRoleD5A6307A:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated:
+                Ref: IAMResourcesGithubOIDCProvider4827AF64
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: repo:pappychamp/itrender_batch:ref:refs/heads/main
+      Description: Github batch repo use role
+      Policies:
+        - PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ecr:CompleteLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:InitiateLayerUpload
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                  - ecr:BatchGetImage
+                Resource: "*"
+          PolicyName: ECRPushPolicy
+      RoleName: GithubBatchRepoIAMRole
+  IAMResourcesTaskExecutionIAMRole50279E13:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+      Description: ECS task use role
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      RoleName: TaskExecutionRole
+  IAMResourcesTaskExecutionIAMRoleDefaultPolicy04B0B1C4:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ecr:BatchCheckLayerAvailability
+              - ecr:BatchGetImage
+              - ecr:GetDownloadUrlForLayer
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - ECRResourcesBatchRepositoryF70A7F5B
+                - Arn
+          - Action: ecr:GetAuthorizationToken
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - ECSResourcesBatchLogGroupF877012A
+                - Arn
+          - Action:
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource:
+              Ref: RDSResourcesDBSecretManager80A5E4EA
+          - Action:
+              - ssm:DescribeParameters
+              - ssm:GetParameter
+              - ssm:GetParameterHistory
+              - ssm:GetParameters
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":ssm:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :parameter/itrender/QIITA_ACCESS_TOKEN
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":ssm:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :parameter/itrender/SENTRY_DSN/batch
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":ssm:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :parameter/itrender/YOUTUBE_API_KEY
+        Version: "2012-10-17"
+      PolicyName: IAMResourcesTaskExecutionIAMRoleDefaultPolicy04B0B1C4
+      Roles:
+        - Ref: IAMResourcesTaskExecutionIAMRole50279E13
+  RDSResourcesDBSecretManager80A5E4EA:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        ExcludePunctuation: true
+        GenerateStringKey: password
+        SecretStringTemplate: '{"username":"itrenderdbUser"}'
+      Name: itrenderDatabaseSecret
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+  RDSResourcesDBSecretManagerAttachment138C876E:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    Properties:
+      SecretId:
+        Ref: RDSResourcesDBSecretManager80A5E4EA
+      TargetId:
+        Ref: RDSResourcesRDSInstance6A09BF0E
+      TargetType: AWS::RDS::DBInstance
+  RDSResourcesRDSInstanceSubnetGroup8A6EBCCD:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDSInstance database
+      SubnetIds:
+        - Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
+        - Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
+  RDSResourcesRDSInstanceSecurityGroupA0A02CFB:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for RDSInstance database
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow PostgreSQL access
+          FromPort: 5432
+          IpProtocol: tcp
+          ToPort: 5432
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  RDSResourcesRDSInstance6A09BF0E:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: "100"
+      BackupRetentionPeriod: 7
+      CopyTagsToSnapshot: true
+      DBInstanceClass: db.t3.micro
+      DBName:
+        Ref: RDSResourcesDBNameParameterF7365EAE
+      DBSubnetGroupName:
+        Ref: RDSResourcesRDSInstanceSubnetGroup8A6EBCCD
+      Engine: postgres
+      EngineVersion: "16.3"
+      MasterUserPassword:
+        Fn::Join:
+          - ""
+          - - "{{resolve:secretsmanager:"
+            - Ref: RDSResourcesDBSecretManager80A5E4EA
+            - :SecretString:password::}}
+      MasterUsername:
+        Fn::Join:
+          - ""
+          - - "{{resolve:secretsmanager:"
+            - Ref: RDSResourcesDBSecretManager80A5E4EA
+            - :SecretString:username::}}
+      MaxAllocatedStorage: 500
+      MultiAZ: false
+      PubliclyAccessible: false
+      StorageType: gp2
+      VPCSecurityGroups:
+        - Fn::GetAtt:
+            - RDSResourcesRDSInstanceSecurityGroupA0A02CFB
+            - GroupId
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+  RDSResourcesRdsEndpointParameter5BEEE7E6:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: RDS Instance Endpoint
+      Name: /itrender/HOST_NAME
+      Type: String
+      Value:
+        Fn::GetAtt:
+          - RDSResourcesRDSInstance6A09BF0E
+          - Endpoint.Address
+  ECSResourcesitrenderClusterE6F3C61F:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: itrenderCluster
+  ECSResourcesitrenderBatchTaskDefinitionTaskRole8CEA45A9:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+  ECSResourcesitrenderBatchTaskDefinition912FE447:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Environment:
+            - Name: ENVIRONMENT
+              Value: production
+          Essential: true
+          Image:
+            Fn::Join:
+              - ""
+              - - Fn::Select:
+                    - 4
+                    - Fn::Split:
+                        - ":"
+                        - Fn::GetAtt:
+                            - ECRResourcesBatchRepositoryF70A7F5B
+                            - Arn
+                - .dkr.ecr.
+                - Fn::Select:
+                    - 3
+                    - Fn::Split:
+                        - ":"
+                        - Fn::GetAtt:
+                            - ECRResourcesBatchRepositoryF70A7F5B
+                            - Arn
+                - "."
+                - Ref: AWS::URLSuffix
+                - /
+                - Ref: ECRResourcesBatchRepositoryF70A7F5B
+                - :latest
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: ECSResourcesBatchLogGroupF877012A
+              awslogs-stream-prefix: ecs
+              awslogs-region:
+                Ref: AWS::Region
+          Name: BatchTask
+          PortMappings:
+            - ContainerPort: 80
+              HostPort: 80
+              Protocol: tcp
+          Secrets:
+            - Name: HOST_NAME
+              ValueFrom:
+                Fn::Join:
+                  - ""
+                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                    - ":host::"
+            - Name: PORT_NUMBER
+              ValueFrom:
+                Fn::Join:
+                  - ""
+                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                    - ":port::"
+            - Name: POSTGRES_DB
+              ValueFrom:
+                Fn::Join:
+                  - ""
+                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                    - ":dbname::"
+            - Name: POSTGRES_PASSWORD
+              ValueFrom:
+                Fn::Join:
+                  - ""
+                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                    - ":password::"
+            - Name: POSTGRES_USER
+              ValueFrom:
+                Fn::Join:
+                  - ""
+                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                    - ":username::"
+            - Name: QIITA_ACCESS_TOKEN
+              ValueFrom:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":ssm:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :parameter/itrender/QIITA_ACCESS_TOKEN
+            - Name: SENTRY_DSN
+              ValueFrom:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":ssm:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :parameter/itrender/SENTRY_DSN/batch
+            - Name: YOUTUBE_API_KEY
+              ValueFrom:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":ssm:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :parameter/itrender/YOUTUBE_API_KEY
+      Cpu: "256"
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - IAMResourcesTaskExecutionIAMRole50279E13
+          - Arn
+      Family: itrenderBatchTaskDefinition
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      TaskRoleArn:
+        Fn::GetAtt:
+          - ECSResourcesitrenderBatchTaskDefinitionTaskRole8CEA45A9
+          - Arn
+  ECSResourcesitrenderBatchTaskDefinitionEventsRoleB3A33D4D:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+  ECSResourcesitrenderBatchTaskDefinitionEventsRoleDefaultPolicy2440D80A:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: ecs:RunTask
+            Condition:
+              ArnEquals:
+                ecs:cluster:
+                  Fn::GetAtt:
+                    - ECSResourcesitrenderClusterE6F3C61F
+                    - Arn
+            Effect: Allow
+            Resource:
+              Ref: ECSResourcesitrenderBatchTaskDefinition912FE447
+          - Action: ecs:TagResource
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - ":ecs:"
+                  - Ref: AWS::Region
+                  - :*:task/
+                  - Ref: ECSResourcesitrenderClusterE6F3C61F
+                  - /*
+          - Action: iam:PassRole
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - ECSResourcesitrenderBatchTaskDefinitionTaskRole8CEA45A9
+                  - Arn
+              - Fn::GetAtt:
+                  - IAMResourcesTaskExecutionIAMRole50279E13
+                  - Arn
+        Version: "2012-10-17"
+      PolicyName: ECSResourcesitrenderBatchTaskDefinitionEventsRoleDefaultPolicy2440D80A
+      Roles:
+        - Ref: ECSResourcesitrenderBatchTaskDefinitionEventsRoleB3A33D4D
+  ECSResourcesitrenderBatchTaskDefinitionSecurityGroupFA6B5E4A:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Itrender/ECSResources/itrenderBatchTaskDefinition/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  ECSResourcesBatchLogGroupF877012A:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/batch-task
+      RetentionInDays: 7
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+  EventBridgeResourcesBatchRule41307395:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: cron(0 15 * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - ECSResourcesitrenderClusterE6F3C61F
+              - Arn
+          EcsParameters:
+            LaunchType: FARGATE
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: ENABLED
+                SecurityGroups:
+                  - Fn::GetAtt:
+                      - ECSResourcesitrenderBatchTaskDefinitionSecurityGroupFA6B5E4A
+                      - GroupId
+                Subnets:
+                  - Ref: NetworkResourcesVPCPublicSubnet1Subnet6F6A3BBC
+                  - Ref: NetworkResourcesVPCPublicSubnet2Subnet49109E8D
+            PlatformVersion: LATEST
+            TaskCount: 1
+            TaskDefinitionArn:
+              Ref: ECSResourcesitrenderBatchTaskDefinition912FE447
+          Id: Target0
+          Input: "{}"
+          RoleArn:
+            Fn::GetAtt:
+              - ECSResourcesitrenderBatchTaskDefinitionEventsRoleB3A33D4D
+              - Arn
+Parameters:
+  RDSResourcesDBNameParameterF7365EAE:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /itrender/POSTGRES_DB
+  ECSResourcesQiitaAccessTokenParameter7A382DAF:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /itrender/QIITA_ACCESS_TOKEN
+  ECSResourcesSentryDsnParameter1F575080:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /itrender/SENTRY_DSN/batch
+  ECSResourcesYoutubeApiKeyParameterDE8FE04A:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /itrender/YOUTUBE_API_KEY
 
