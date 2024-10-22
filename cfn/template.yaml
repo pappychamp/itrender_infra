@@ -225,7 +225,7 @@ Resources:
               Federated:
                 Ref: IAMResourcesGithubOIDCProvider4827AF64
             Action: sts:AssumeRoleWithWebIdentity
-            description: Githubのバッチレポジトリが使用するロール
+            description: Github batch repo use policy
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com

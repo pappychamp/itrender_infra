@@ -33,7 +33,7 @@ export class IAMResources extends Construct {
                 Federated: GithubOIDCProvider.ref, // OIDCプロバイダを参照
               },
               Action: "sts:AssumeRoleWithWebIdentity",
-              description: "Githubのバッチレポジトリが使用するロール",
+              description: "Github batch repo use policy",
               Condition: {
                 StringEquals: {
                   "token.actions.githubusercontent.com:aud":
