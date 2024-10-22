@@ -52,6 +52,49 @@ Resources:
         Ref: NetworkResourcesVPCPublicSubnet1RouteTable6454E7A0
     DependsOn:
       - NetworkResourcesVPCVPCGW3E431846
+  NetworkResourcesVPCPublicSubnet2Subnet49109E8D:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: Itrender/NetworkResources/VPC/PublicSubnet2
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPublicSubnet2RouteTable1A2F0874:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Itrender/NetworkResources/VPC/PublicSubnet2
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPublicSubnet2RouteTableAssociation8004F1DC:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkResourcesVPCPublicSubnet2RouteTable1A2F0874
+      SubnetId:
+        Ref: NetworkResourcesVPCPublicSubnet2Subnet49109E8D
+  NetworkResourcesVPCPublicSubnet2DefaultRoute2EA191E2:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: NetworkResourcesVPCIGW7EB493C1
+      RouteTableId:
+        Ref: NetworkResourcesVPCPublicSubnet2RouteTable1A2F0874
+    DependsOn:
+      - NetworkResourcesVPCVPCGW3E431846
   NetworkResourcesVPCPrivateSubnet1Subnet96D28963:
     Type: AWS::EC2::Subnet
     Properties:
@@ -59,7 +102,7 @@ Resources:
         Fn::Select:
           - 0
           - Fn::GetAZs: ""
-      CidrBlock: 10.0.1.0/24
+      CidrBlock: 10.0.2.0/24
       MapPublicIpOnLaunch: false
       Tags:
         - Key: aws-cdk:subnet-name
@@ -85,6 +128,39 @@ Resources:
         Ref: NetworkResourcesVPCPrivateSubnet1RouteTableC3B50931
       SubnetId:
         Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
+  NetworkResourcesVPCPrivateSubnet2Subnet2F126685:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Isolated
+        - Key: Name
+          Value: Itrender/NetworkResources/VPC/PrivateSubnet2
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPrivateSubnet2RouteTable01CD4248:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Itrender/NetworkResources/VPC/PrivateSubnet2
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkResourcesVPCPrivateSubnet2RouteTable01CD4248
+      SubnetId:
+        Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
   NetworkResourcesVPCIGW7EB493C1:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -198,6 +274,7 @@ Resources:
       DBSubnetGroupDescription: Subnet group for RDSInstance database
       SubnetIds:
         - Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
+        - Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
   RDSResourcesRDSInstanceSecurityGroupA0A02CFB:
     Type: AWS::EC2::SecurityGroup
     Properties:
