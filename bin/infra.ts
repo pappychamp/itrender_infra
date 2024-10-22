@@ -40,8 +40,8 @@ const iamResources = new IAMResources(stack, "IAMResources");
 //   "EventBridgeResources",
 //   ecsResources
 // );
-const rdsResources = new RDSResources(
-  stack,
-  "RDSResources",
-  networkResources.vpc
-);
+// const rdsResources = new RDSResources(
+//   stack,
+//   "RDSResources",
+//   networkResources.vpc
+// );
