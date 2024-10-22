@@ -225,12 +225,12 @@ Resources:
               Federated:
                 Ref: IAMResourcesGithubOIDCProvider4827AF64
             Action: sts:AssumeRoleWithWebIdentity
-            description: Github batch repo use policy
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
               StringLike:
                 token.actions.githubusercontent.com:sub: repo:pappychamp/itrender_batch:ref:refs/heads/main
+      Description: Github batch repo use role
       Policies:
         - PolicyDocument:
             Version: "2012-10-17"

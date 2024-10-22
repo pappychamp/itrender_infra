@@ -24,6 +24,7 @@ export class IAMResources extends Construct {
       "GithubBatchRepoIAMRole",
       {
         roleName: "GithubBatchRepoIAMRole",
+        description: "Github batch repo use role",
         assumeRolePolicyDocument: {
           Version: "2012-10-17",
           Statement: [
@@ -33,7 +34,6 @@ export class IAMResources extends Construct {
                 Federated: GithubOIDCProvider.ref, // OIDCプロバイダを参照
               },
               Action: "sts:AssumeRoleWithWebIdentity",
-              description: "Github batch repo use policy",
               Condition: {
                 StringEquals: {
                   "token.actions.githubusercontent.com:aud":
