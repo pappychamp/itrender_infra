@@ -3,6 +3,7 @@ import * as rds from "aws-cdk-lib/aws-rds";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as cdk from "aws-cdk-lib";
 import * as ssm from "aws-cdk-lib/aws-ssm";
+import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 
 export class RDSResources extends Construct {
   constructor(scope: Construct, id: string, vpc: ec2.Vpc) {
@@ -13,12 +14,19 @@ export class RDSResources extends Construct {
       "DBName",
       "/itrender/POSTGRES_DB"
     );
-    const dbUsername = ssm.StringParameter.fromStringParameterName(
-      this,
-      "DBUsername",
-      "/itrender/POSTGRES_USER"
-    );
-    const dbPassword = cdk.SecretValue.ssmSecure("/itrender/POSTGRES_PASSWORD");
+    // const dbUsername = ssm.StringParameter.fromStringParameterName(
+    //   this,
+    //   "DBUsername",
+    //   "/itrender/POSTGRES_USER"
+    // );
+    // const dbPassword = cdk.SecretValue.ssmSecure("/itrender/POSTGRES_PASSWORD");
+    const dbSecret = new secretsmanager.Secret(this, "DBSecretManager", {
+      secretName: "itrenderDatabaseSecret", // シークレットの名前
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({ username: "itrenderdbUser" }), // 自動生成されたユーザー名を設定
+        generateStringKey: "password", // パスワードを生成する
+      },
+    });
 
     // RDS PostgreSQL インスタンスを作成
     const rdsInstance = new rds.DatabaseInstance(this, "RDSInstance", {
@@ -26,9 +34,10 @@ export class RDSResources extends Construct {
         version: rds.PostgresEngineVersion.VER_16_3,
       }),
       vpc,
-      credentials: rds.Credentials.fromUsername(dbUsername.stringValue, {
-        password: dbPassword,
-      }),
+      // credentials: rds.Credentials.fromUsername(dbUsername.stringValue, {
+      //   password: dbPassword,
+      // }),
+      credentials: rds.Credentials.fromSecret(dbSecret),
       multiAz: false, // マルチアベイラビリティゾーン
       allocatedStorage: 100, // 100GBのストレージ
       maxAllocatedStorage: 500,

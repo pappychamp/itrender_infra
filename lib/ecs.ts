@@ -5,6 +5,7 @@ import * as logs from "aws-cdk-lib/aws-logs";
 import { IAMResources } from "./iam";
 import { ECRResources } from "./ecr";
 import * as ssm from "aws-cdk-lib/aws-ssm";
+import * as cdk from "aws-cdk-lib";
 
 export class ECSResources extends Construct {
   public readonly ecsCluster: ecs.Cluster;
