@@ -87,7 +87,7 @@ export class IAMResources extends Construct {
         "service-role/AmazonECSTaskExecutionRolePolicy"
       )
     );
-    const prtition = Stack.of(this).partition;
+    const partition = Stack.of(this).partition;
     const region = Stack.of(this).region;
     const accountId = Stack.of(this).account;
 
@@ -95,12 +95,9 @@ export class IAMResources extends Construct {
     this.taskExecutionRole.addToPolicy(
       new iam.PolicyStatement({
         actions: [
-          "ssm:GetParameters", // 複数のパラメータを取得する権限
           "kms:Decrypt", // 暗号化されたパラメータの復号権限
         ],
-        resources: [
-          `arn:${prtition}:ssm:${region}:${accountId}:parameter/itrender/*`, // SSM パラメータへのアクセス
-        ],
+        resources: ["*"],
       })
     );
   }

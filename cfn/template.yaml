@@ -274,19 +274,10 @@ Resources:
       PolicyDocument:
         Statement:
           - Action:
+              - ecr:GetAuthorizationToken
               - kms:Decrypt
-              - ssm:GetParameters
             Effect: Allow
-            Resource:
-              Fn::Join:
-                - ""
-                - - "arn:"
-                  - Ref: AWS::Partition
-                  - ":ssm:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - :parameter/itrender/*
+            Resource: "*"
           - Action:
               - ecr:BatchCheckLayerAvailability
               - ecr:BatchGetImage
@@ -296,9 +287,6 @@ Resources:
               Fn::GetAtt:
                 - ECRResourcesBatchRepositoryF70A7F5B
                 - Arn
-          - Action: ecr:GetAuthorizationToken
-            Effect: Allow
-            Resource: "*"
           - Action:
               - logs:CreateLogStream
               - logs:PutLogEvents
