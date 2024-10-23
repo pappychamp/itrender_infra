@@ -427,7 +427,7 @@ Resources:
     Type: AWS::ECS::Cluster
     Properties:
       ClusterName: itrenderCluster
-  ECSResourcesitrenderTaskDefinitionTaskRole27319CDE:
+  ECSResourcesitrenderBatchTaskDefinitionTaskRole8CEA45A9:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -437,7 +437,7 @@ Resources:
             Principal:
               Service: ecs-tasks.amazonaws.com
         Version: "2012-10-17"
-  ECSResourcesitrenderTaskDefinition4B974D6B:
+  ECSResourcesitrenderBatchTaskDefinition912FE447:
     Type: AWS::ECS::TaskDefinition
     Properties:
       ContainerDefinitions:
@@ -550,16 +550,16 @@ Resources:
         Fn::GetAtt:
           - IAMResourcesTaskExecutionIAMRole50279E13
           - Arn
-      Family: TestTaskDefinition
+      Family: itrenderBatchTaskDefinition
       Memory: "512"
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
       TaskRoleArn:
         Fn::GetAtt:
-          - ECSResourcesitrenderTaskDefinitionTaskRole27319CDE
+          - ECSResourcesitrenderBatchTaskDefinitionTaskRole8CEA45A9
           - Arn
-  ECSResourcesitrenderTaskDefinitionEventsRole4E9726C2:
+  ECSResourcesitrenderBatchTaskDefinitionEventsRoleB3A33D4D:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -569,7 +569,7 @@ Resources:
             Principal:
               Service: events.amazonaws.com
         Version: "2012-10-17"
-  ECSResourcesitrenderTaskDefinitionEventsRoleDefaultPolicy6B8D132F:
+  ECSResourcesitrenderBatchTaskDefinitionEventsRoleDefaultPolicy2440D80A:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -583,7 +583,7 @@ Resources:
                     - Arn
             Effect: Allow
             Resource:
-              Ref: ECSResourcesitrenderTaskDefinition4B974D6B
+              Ref: ECSResourcesitrenderBatchTaskDefinition912FE447
           - Action: ecs:TagResource
             Effect: Allow
             Resource:
@@ -600,19 +600,19 @@ Resources:
             Effect: Allow
             Resource:
               - Fn::GetAtt:
-                  - ECSResourcesitrenderTaskDefinitionTaskRole27319CDE
+                  - ECSResourcesitrenderBatchTaskDefinitionTaskRole8CEA45A9
                   - Arn
               - Fn::GetAtt:
                   - IAMResourcesTaskExecutionIAMRole50279E13
                   - Arn
         Version: "2012-10-17"
-      PolicyName: ECSResourcesitrenderTaskDefinitionEventsRoleDefaultPolicy6B8D132F
+      PolicyName: ECSResourcesitrenderBatchTaskDefinitionEventsRoleDefaultPolicy2440D80A
       Roles:
-        - Ref: ECSResourcesitrenderTaskDefinitionEventsRole4E9726C2
-  ECSResourcesitrenderTaskDefinitionSecurityGroupC4B7C1E6:
+        - Ref: ECSResourcesitrenderBatchTaskDefinitionEventsRoleB3A33D4D
+  ECSResourcesitrenderBatchTaskDefinitionSecurityGroupFA6B5E4A:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Itrender/ECSResources/itrenderTaskDefinition/SecurityGroup
+      GroupDescription: Itrender/ECSResources/itrenderBatchTaskDefinition/SecurityGroup
       SecurityGroupEgress:
         - CidrIp: 0.0.0.0/0
           Description: Allow all outbound traffic by default
@@ -643,7 +643,7 @@ Resources:
                 AssignPublicIp: ENABLED
                 SecurityGroups:
                   - Fn::GetAtt:
-                      - ECSResourcesitrenderTaskDefinitionSecurityGroupC4B7C1E6
+                      - ECSResourcesitrenderBatchTaskDefinitionSecurityGroupFA6B5E4A
                       - GroupId
                 Subnets:
                   - Ref: NetworkResourcesVPCPublicSubnet1Subnet6F6A3BBC
@@ -651,12 +651,12 @@ Resources:
             PlatformVersion: LATEST
             TaskCount: 1
             TaskDefinitionArn:
-              Ref: ECSResourcesitrenderTaskDefinition4B974D6B
+              Ref: ECSResourcesitrenderBatchTaskDefinition912FE447
           Id: Target0
           Input: "{}"
           RoleArn:
             Fn::GetAtt:
-              - ECSResourcesitrenderTaskDefinitionEventsRole4E9726C2
+              - ECSResourcesitrenderBatchTaskDefinitionEventsRoleB3A33D4D
               - Arn
 Parameters:
   RDSResourcesDBNameParameterF7365EAE:
