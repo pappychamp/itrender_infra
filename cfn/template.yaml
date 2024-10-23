@@ -284,6 +284,7 @@ Resources:
     Type: AWS::SecretsManager::Secret
     Properties:
       GenerateSecretString:
+        ExcludePunctuation: true
         GenerateStringKey: password
         SecretStringTemplate: '{"username":"itrenderdbUser"}'
       Name: itrenderDatabaseSecret

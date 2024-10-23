@@ -25,6 +25,7 @@ export class RDSResources extends Construct {
       generateSecretString: {
         secretStringTemplate: JSON.stringify({ username: "itrenderdbUser" }), // 自動生成されたユーザー名を設定
         generateStringKey: "password", // パスワードを生成する
+        excludePunctuation: true, // 記号を含めないオプション
       },
     });
 
