@@ -30,12 +30,12 @@ export class ECSResources extends Construct {
     // ECSタスク定義の作成
     this.taskDefinition = new ecs.FargateTaskDefinition(
       this,
-      "itrenderTaskDefinition",
+      "itrenderBatchTaskDefinition",
       {
         cpu: 256, // CPUの割り当て
         memoryLimitMiB: 512, // メモリの割り当て
         executionRole: iamResources.taskExecutionRole, // タスク実行ロールを指定
-        family: "TestTaskDefinition",
+        family: "itrenderBatchTaskDefinition",
       }
     );
 
