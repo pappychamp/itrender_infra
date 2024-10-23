@@ -274,6 +274,20 @@ Resources:
       PolicyDocument:
         Statement:
           - Action:
+              - kms:Decrypt
+              - ssm:GetParameters
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - ":ssm:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :parameter/itrender/*
+          - Action:
               - ecr:BatchCheckLayerAvailability
               - ecr:BatchGetImage
               - ecr:GetDownloadUrlForLayer
