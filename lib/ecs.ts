@@ -4,6 +4,7 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { IAMResources } from "./iam";
 import { ECRResources } from "./ecr";
+import { RDSResources } from "./rds";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import * as cdk from "aws-cdk-lib";
 
@@ -16,7 +17,8 @@ export class ECSResources extends Construct {
     id: string,
     vpc: ec2.Vpc,
     iamResources: IAMResources,
-    ecrResources: ECRResources
+    ecrResources: ECRResources,
+    rdsResources: RDSResources
   ) {
     super(scope, id);
     // ECSクラスターの作成
@@ -63,40 +65,22 @@ export class ECSResources extends Construct {
         ENVIRONMENT: "production",
       },
       secrets: {
-        HOST_NAME: ecs.Secret.fromSsmParameter(
-          ssm.StringParameter.fromStringParameterName(
-            this,
-            "HostName",
-            "/itrender/HOST_NAME"
-          )
+        HOST_NAME: ecs.Secret.fromSecretsManager(rdsResources.dbSecret, "host"),
+        PORT_NUMBER: ecs.Secret.fromSecretsManager(
+          rdsResources.dbSecret,
+          "port"
         ),
-        PORT_NUMBER: ecs.Secret.fromSsmParameter(
-          ssm.StringParameter.fromStringParameterName(
-            this,
-            "PortNumber",
-            "/itrender/PORT_NUMBER"
-          )
+        POSTGRES_DB: ecs.Secret.fromSecretsManager(
+          rdsResources.dbSecret,
+          "dbname"
         ),
-        POSTGRES_DB: ecs.Secret.fromSsmParameter(
-          ssm.StringParameter.fromStringParameterName(
-            this,
-            "PostgresDB",
-            "/itrender/POSTGRES_DB"
-          )
+        POSTGRES_PASSWORD: ecs.Secret.fromSecretsManager(
+          rdsResources.dbSecret,
+          "password"
         ),
-        POSTGRES_PASSWORD: ecs.Secret.fromSsmParameter(
-          ssm.StringParameter.fromStringParameterName(
-            this,
-            "PostgresPassword",
-            "/itrender/POSTGRES_PASSWORD"
-          )
-        ),
-        POSTGRES_USER: ecs.Secret.fromSsmParameter(
-          ssm.StringParameter.fromStringParameterName(
-            this,
-            "PostgresUser",
-            "/itrender/POSTGRES_USER"
-          )
+        POSTGRES_USER: ecs.Secret.fromSecretsManager(
+          rdsResources.dbSecret,
+          "username"
         ),
         QIITA_ACCESS_TOKEN: ecs.Secret.fromSsmParameter(
           ssm.StringParameter.fromStringParameterName(

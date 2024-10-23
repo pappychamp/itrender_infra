@@ -87,18 +87,5 @@ export class IAMResources extends Construct {
         "service-role/AmazonECSTaskExecutionRolePolicy"
       )
     );
-    const partition = Stack.of(this).partition;
-    const region = Stack.of(this).region;
-    const accountId = Stack.of(this).account;
-
-    // SSM パラメータと KMS のアクセス用ポリシーを追加
-    this.taskExecutionRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: [
-          "kms:Decrypt", // 暗号化されたパラメータの復号権限
-        ],
-        resources: ["*"],
-      })
-    );
   }
 }

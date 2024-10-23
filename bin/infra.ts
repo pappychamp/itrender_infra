@@ -28,20 +28,21 @@ const securitygroupResources = new SecurityGroupResources(
 );
 // IAMリソースを追加
 const iamResources = new IAMResources(stack, "IAMResources");
-// const ecsResources = new ECSResources(
-//   stack,
-//   "ECSResources",
-//   networkResources.vpc,
-//   iamResources,
-//   ecrResources
-// );
-// const eventbridgeResources = new EventBridgeResources(
-//   stack,
-//   "EventBridgeResources",
-//   ecsResources
-// );
 const rdsResources = new RDSResources(
   stack,
   "RDSResources",
   networkResources.vpc
+);
+const ecsResources = new ECSResources(
+  stack,
+  "ECSResources",
+  networkResources.vpc,
+  iamResources,
+  ecrResources,
+  rdsResources
+);
+const eventbridgeResources = new EventBridgeResources(
+  stack,
+  "EventBridgeResources",
+  ecsResources
 );
