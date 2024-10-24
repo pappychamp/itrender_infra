@@ -8,6 +8,7 @@ import { IAMResources } from "../lib/iam";
 import { ECSResources } from "../lib/ecs";
 import { EventBridgeResources } from "../lib/eventbridge";
 import { RDSResources } from "../lib/rds";
+import { S3Resources } from "../lib/s3";
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, "Itrender", {
@@ -28,11 +29,15 @@ const securitygroupResources = new SecurityGroupResources(
 );
 // IAMリソースを追加
 const iamResources = new IAMResources(stack, "IAMResources");
+// S3リソースを追加
+const s3Resources = new S3Resources(stack,"S3Resources")
+// RDSリソースを追加
 const rdsResources = new RDSResources(
   stack,
   "RDSResources",
   networkResources.vpc
 );
+// ECSリソースを追加
 const ecsResources = new ECSResources(
   stack,
   "ECSResources",
@@ -41,6 +46,7 @@ const ecsResources = new ECSResources(
   ecrResources,
   rdsResources
 );
+// EventBridgeリソースを追加
 const eventbridgeResources = new EventBridgeResources(
   stack,
   "EventBridgeResources",

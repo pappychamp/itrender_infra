@@ -337,6 +337,43 @@ Resources:
       PolicyName: IAMResourcesTaskExecutionIAMRoleDefaultPolicy04B0B1C4
       Roles:
         - Ref: IAMResourcesTaskExecutionIAMRole50279E13
+  S3ResourcesWebsiteBucket6F8BAB69:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      BucketName: itrender.net
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        ErrorDocument: error.html
+        IndexDocument: index.html
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+  S3ResourcesWebsiteBucketPolicyD43366E4:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: S3ResourcesWebsiteBucket6F8BAB69
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Principal:
+              AWS: "*"
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - S3ResourcesWebsiteBucket6F8BAB69
+                      - Arn
+                  - /*
+        Version: "2012-10-17"
   RDSResourcesDBSecretManager80A5E4EA:
     Type: AWS::SecretsManager::Secret
     Properties:
