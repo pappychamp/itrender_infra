@@ -250,6 +250,36 @@ Resources:
                 Resource: "*"
           PolicyName: ECRPushPolicy
       RoleName: GithubBatchRepoIAMRole
+  IAMResourcesGithubFrontendRepoIAMRole9013ADA9:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated:
+                Ref: IAMResourcesGithubOIDCProvider4827AF64
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: repo:pappychamp/itrender_frontend:ref:refs/heads/main
+      Description: Github Frontend repo use role
+      Policies:
+        - PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource: "*"
+          PolicyName: S3DeployPolicy
+      RoleName: GithubFrontendRepoIAMRole
   IAMResourcesTaskExecutionIAMRole50279E13:
     Type: AWS::IAM::Role
     Properties:

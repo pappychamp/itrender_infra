@@ -1,6 +1,10 @@
 import { Construct } from "constructs";
 import * as iam from "aws-cdk-lib/aws-iam";
-import { githubUserName, githubBatchRepositoryName } from "./constants";
+import {
+  githubUserName,
+  githubBatchRepositoryName,
+  githubFrontendRepositoryName,
+} from "./constants";
 import { Stack } from "aws-cdk-lib";
 export class IAMResources extends Construct {
   public readonly taskExecutionRole: iam.Role;
@@ -66,6 +70,55 @@ export class IAMResources extends Construct {
                     "ecr:BatchCheckLayerAvailability",
                     "ecr:PutImage",
                     "ecr:BatchGetImage",
+                  ],
+                  Resource: "*",
+                },
+              ],
+            },
+          },
+        ],
+      }
+    );
+    const githubFrontendRepoIAMRole = new iam.CfnRole(
+      this,
+      "GithubFrontendRepoIAMRole",
+      {
+        roleName: "GithubFrontendRepoIAMRole",
+        description: "Github Frontend repo use role",
+        assumeRolePolicyDocument: {
+          Version: "2012-10-17",
+          Statement: [
+            {
+              Effect: "Allow",
+              Principal: {
+                Federated: GithubOIDCProvider.ref, // OIDCプロバイダを参照
+              },
+              Action: "sts:AssumeRoleWithWebIdentity",
+              Condition: {
+                StringEquals: {
+                  "token.actions.githubusercontent.com:aud":
+                    "sts.amazonaws.com",
+                },
+                StringLike: {
+                  "token.actions.githubusercontent.com:sub": `repo:${githubUserName}/${githubFrontendRepositoryName}:ref:refs/heads/main`,
+                },
+              },
+            },
+          ],
+        },
+        policies: [
+          {
+            policyName: "S3DeployPolicy",
+            policyDocument: {
+              Version: "2012-10-17",
+              Statement: [
+                {
+                  Effect: "Allow",
+                  Action: [
+                    "s3:PutObject",
+                    "s3:PutObjectAcl",
+                    "s3:DeleteObject",
+                    "s3:ListBucket",
                   ],
                   Resource: "*",
                 },
