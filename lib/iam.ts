@@ -162,14 +162,6 @@ export class IAMResources extends Construct {
               Version: "2012-10-17",
               Statement: [
                 {
-                  Sid: "CloudFormationTemplate",
-                  Effect: "Allow",
-                  Action: ["cloudformation:CreateChangeSet"],
-                  Resource: [
-                    "arn:aws:cloudformation:*:aws:transform/Serverless-2016-10-31",
-                  ],
-                },
-                {
                   Sid: "CloudFormationStack",
                   Effect: "Allow",
                   Action: [
