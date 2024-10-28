@@ -196,22 +196,7 @@ export class IAMResources extends Construct {
                 {
                   Sid: "ECRRepository",
                   Effect: "Allow",
-                  Action: [
-                    "ecr:BatchCheckLayerAvailability",
-                    "ecr:BatchGetImage",
-                    "ecr:CompleteLayerUpload",
-                    "ecr:CreateRepository",
-                    "ecr:DeleteRepository",
-                    "ecr:DescribeImages",
-                    "ecr:DescribeRepositories",
-                    "ecr:GetDownloadUrlForLayer",
-                    "ecr:GetRepositoryPolicy",
-                    "ecr:InitiateLayerUpload",
-                    "ecr:ListImages",
-                    "ecr:PutImage",
-                    "ecr:SetRepositoryPolicy",
-                    "ecr:UploadLayerPart",
-                  ],
+                  Action: ["ecr:*"],
                   Resource: ["*"],
                 },
                 {
