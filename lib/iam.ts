@@ -258,6 +258,7 @@ export class IAMResources extends Construct {
                     "logs:CreateLogGroup",
                     "logs:DeleteLogGroup",
                     "logs:PutRetentionPolicy",
+                    "logs:DescribeLogGroups",
                   ],
                   Resource: ["*"],
                 },

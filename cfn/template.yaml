@@ -385,6 +385,7 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:DeleteLogGroup
                   - logs:PutRetentionPolicy
+                  - logs:DescribeLogGroups
                 Resource:
                   - "*"
           PolicyName: SAMDeployPolicy
