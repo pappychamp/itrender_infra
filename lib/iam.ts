@@ -256,8 +256,8 @@ export class IAMResources extends Construct {
                   Effect: "Allow",
                   Action: [
                     "logs:CreateLogGroup",
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents",
+                    "logs:DeleteLogGroup",
+                    "logs:PutRetentionPolicy",
                   ],
                   Resource: ["*"],
                 },

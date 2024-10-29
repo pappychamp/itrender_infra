@@ -383,8 +383,8 @@ Resources:
                 Effect: Allow
                 Action:
                   - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
+                  - logs:DeleteLogGroup
+                  - logs:PutRetentionPolicy
                 Resource:
                   - "*"
           PolicyName: SAMDeployPolicy
