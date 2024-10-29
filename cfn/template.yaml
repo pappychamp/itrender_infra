@@ -379,6 +379,14 @@ Resources:
                   - apigateway:PUT
                 Resource:
                   - arn:aws:apigateway:*::*
+              - Sid: CloudWatchLogGroup
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - "*"
           PolicyName: SAMDeployPolicy
       RoleName: GithubBackendRepoIAMRole
   IAMResourcesTaskExecutionIAMRole50279E13:

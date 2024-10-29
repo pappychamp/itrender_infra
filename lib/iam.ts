@@ -251,6 +251,16 @@ export class IAMResources extends Construct {
                   ],
                   Resource: ["arn:aws:apigateway:*::*"],
                 },
+                {
+                  Sid: "CloudWatchLogGroup",
+                  Effect: "Allow",
+                  Action: [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  Resource: ["*"],
+                },
               ],
             },
           },
