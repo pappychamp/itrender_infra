@@ -1,3 +1,4 @@
+
 Resources:
   NetworkResourcesVPCD71E3A67:
     Type: AWS::EC2::VPC
@@ -845,4 +846,3 @@ Parameters:
   ECSResourcesYoutubeApiKeyParameterDE8FE04A:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /itrender/YOUTUBE_API_KEY
-
