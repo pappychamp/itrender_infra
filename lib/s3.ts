@@ -22,7 +22,7 @@ export class S3Resources extends Construct {
     });
 
     const samBucket = new Bucket(this, "SAMBucket", {
-      bucketName: "sam-bucket", // バケット名を指定
+      bucketName: "itrender-sam-bucket", // バケット名を指定
     });
   }
 }
