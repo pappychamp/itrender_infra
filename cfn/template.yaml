@@ -505,6 +505,12 @@ Resources:
                       - Arn
                   - /*
         Version: "2012-10-17"
+  S3ResourcesSAMBucketE5EDEBA3:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: sam-bucket
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
   RDSResourcesDBSecretManager80A5E4EA:
     Type: AWS::SecretsManager::Secret
     Properties:
