@@ -249,6 +249,7 @@ export class IAMResources extends Construct {
                     "apigateway:PATCH",
                     "apigateway:POST",
                     "apigateway:PUT",
+                    "apigateway:TagResource",
                   ],
                   Resource: ["arn:aws:apigateway:*::*"],
                 },
