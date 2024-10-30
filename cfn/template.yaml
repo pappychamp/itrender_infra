@@ -377,6 +377,7 @@ Resources:
                   - apigateway:PATCH
                   - apigateway:POST
                   - apigateway:PUT
+                  - apigateway:TagResource
                 Resource:
                   - arn:aws:apigateway:*::*
               - Sid: CloudWatchLogGroup
