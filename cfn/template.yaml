@@ -477,6 +477,29 @@ Resources:
       PolicyName: IAMResourcesTaskExecutionIAMRoleDefaultPolicy04B0B1C4
       Roles:
         - Ref: IAMResourcesTaskExecutionIAMRole50279E13
+  IAMResourcesApiGatewayCloudWatchLogRole17381A09:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+  IAMResourcesApiGatewayAccount583EBE07:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - IAMResourcesApiGatewayCloudWatchLogRole17381A09
+          - Arn
   S3ResourcesWebsiteBucket6F8BAB69:
     Type: AWS::S3::Bucket
     Properties:

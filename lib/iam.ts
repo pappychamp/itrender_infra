@@ -6,6 +6,7 @@ import {
   githubFrontendRepositoryName,
 } from "./constants";
 import { Stack } from "aws-cdk-lib";
+import { CfnAccount } from "aws-cdk-lib/aws-apigateway";
 export class IAMResources extends Construct {
   public readonly taskExecutionRole: iam.Role;
   constructor(scope: Construct, id: string) {
@@ -280,5 +281,22 @@ export class IAMResources extends Construct {
         "service-role/AmazonECSTaskExecutionRolePolicy"
       )
     );
+
+    // API Gateway の CloudWatch logs 出力用ロールを設定
+    const ApiGatewayCloudWatchLogRole = new iam.Role(
+      this,
+      "ApiGatewayCloudWatchLogRole",
+      {
+        assumedBy: new iam.ServicePrincipal("apigateway.amazonaws.com"),
+      }
+    );
+    ApiGatewayCloudWatchLogRole.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+      )
+    );
+    new CfnAccount(this, "ApiGatewayAccount", {
+      cloudWatchRoleArn: ApiGatewayCloudWatchLogRole.roleArn,
+    });
   }
 }
