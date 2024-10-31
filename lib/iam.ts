@@ -261,6 +261,7 @@ export class IAMResources extends Construct {
                     "logs:DeleteLogGroup",
                     "logs:PutRetentionPolicy",
                     "logs:DescribeLogGroups",
+                    "logs:CreateLogDelivery",
                   ],
                   Resource: ["*"],
                 },
@@ -291,11 +292,32 @@ export class IAMResources extends Construct {
         assumedBy: new iam.ServicePrincipal("apigateway.amazonaws.com"),
       }
     );
+    // apigateway V1からlogsにプッシュするためのポリシー
     ApiGatewayCloudWatchLogRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
         "service-role/AmazonAPIGatewayPushToCloudWatchLogs"
       )
     );
+    // apigateway V2からlogsにプッシュするためのポリシー
+    const apigatewayV2PushLogPolicy = new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        "logs:CreateLogDelivery",
+        "logs:PutResourcePolicy",
+        "logs:UpdateLogDelivery",
+        "logs:DeleteLogDelivery",
+        "logs:CreateLogGroup",
+        "logs:DescribeResourcePolicies",
+        "logs:GetLogDelivery",
+        "logs:ListLogDeliveries",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:GetLogEvents",
+        "logs:FilterLogEvents",
+      ],
+      resources: ["*"],
+    });
+    ApiGatewayCloudWatchLogRole.addToPolicy(apigatewayV2PushLogPolicy);
     new CfnAccount(this, "ApiGatewayAccount", {
       cloudWatchRoleArn: ApiGatewayCloudWatchLogRole.roleArn,
     });

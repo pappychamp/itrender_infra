@@ -387,6 +387,7 @@ Resources:
                   - logs:DeleteLogGroup
                   - logs:PutRetentionPolicy
                   - logs:DescribeLogGroups
+                  - logs:CreateLogDelivery
                 Resource:
                   - "*"
           PolicyName: SAMDeployPolicy
@@ -494,6 +495,30 @@ Resources:
             - - "arn:"
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+  IAMResourcesApiGatewayCloudWatchLogRoleDefaultPolicy20AE363B:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogDelivery
+              - logs:CreateLogGroup
+              - logs:DeleteLogDelivery
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
+              - logs:DescribeResourcePolicies
+              - logs:FilterLogEvents
+              - logs:GetLogDelivery
+              - logs:GetLogEvents
+              - logs:ListLogDeliveries
+              - logs:PutResourcePolicy
+              - logs:UpdateLogDelivery
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: IAMResourcesApiGatewayCloudWatchLogRoleDefaultPolicy20AE363B
+      Roles:
+        - Ref: IAMResourcesApiGatewayCloudWatchLogRole17381A09
   IAMResourcesApiGatewayAccount583EBE07:
     Type: AWS::ApiGateway::Account
     Properties:
