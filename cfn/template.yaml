@@ -295,7 +295,7 @@ Resources:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
               StringLike:
-                token.actions.githubusercontent.com:sub: repo:pappychamp/sam-sample:ref:refs/heads/main
+                token.actions.githubusercontent.com:sub: repo:pappychamp/itrender_backend:ref:refs/heads/main
       Description: Github Backend repo use role
       Policies:
         - PolicyDocument:
