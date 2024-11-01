@@ -4,6 +4,7 @@ import {
   githubUserName,
   githubBatchRepositoryName,
   githubFrontendRepositoryName,
+  githubBackendRepositoryName,
 } from "./constants";
 import { Stack } from "aws-cdk-lib";
 import { CfnAccount } from "aws-cdk-lib/aws-apigateway";
@@ -150,7 +151,7 @@ export class IAMResources extends Construct {
                     "sts.amazonaws.com",
                 },
                 StringLike: {
-                  "token.actions.githubusercontent.com:sub": `repo:${githubUserName}/sam-sample:ref:refs/heads/main`,
+                  "token.actions.githubusercontent.com:sub": `repo:${githubUserName}/${githubBackendRepositoryName}:ref:refs/heads/main`,
                 },
               },
             },
