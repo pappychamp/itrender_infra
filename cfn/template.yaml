@@ -535,12 +535,86 @@ Resources:
                       - Arn
                   - /*
         Version: "2012-10-17"
+  S3ResourcessamplewebsiteBucketCACF3CDD:
+    Type: AWS::S3::Bucket
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+  S3ResourcessamplewebsiteBucketPolicy51D0B764:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: S3ResourcessamplewebsiteBucketCACF3CDD
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Condition:
+              StringEquals:
+                AWS:SourceArn:
+                  Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - ":cloudfront::"
+                      - Ref: AWS::AccountId
+                      - :distribution/
+                      - Ref: CloudFrontResourcesDistribution773EB15D
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - S3ResourcessamplewebsiteBucketCACF3CDD
+                      - Arn
+                  - /*
+        Version: "2012-10-17"
   S3ResourcesSAMBucketE5EDEBA3:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: itrender-sam-bucket
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
+  CloudFrontResourcesDistributionOrigin1S3OriginAccessControlA96A45E9:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: ItrenderCloudFrontResourcesDOrigin1S3OriginAccessControl38F1D73B
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  CloudFrontResourcesDistribution773EB15D:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - itrender.net
+        DefaultCacheBehavior:
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          Compress: true
+          TargetOriginId: ItrenderCloudFrontResourcesDistributionOrigin1C38E7B4D
+          ViewerProtocolPolicy: allow-all
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName:
+              Fn::GetAtt:
+                - S3ResourcessamplewebsiteBucketCACF3CDD
+                - RegionalDomainName
+            Id: ItrenderCloudFrontResourcesDistributionOrigin1C38E7B4D
+            OriginAccessControlId:
+              Fn::GetAtt:
+                - CloudFrontResourcesDistributionOrigin1S3OriginAccessControlA96A45E9
+                - Id
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+        ViewerCertificate:
+          AcmCertificateArn:
+            Ref: SsmParameterValueitrenderCertificateArnC96584B6F00A464EAD1953AFF4B05118Parameter
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
   RDSResourcesDBSecretManager80A5E4EA:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -863,6 +937,9 @@ Resources:
               - ECSResourcesitrenderBatchTaskDefinitionEventsRoleB3A33D4D
               - Arn
 Parameters:
+  SsmParameterValueitrenderCertificateArnC96584B6F00A464EAD1953AFF4B05118Parameter:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /itrender/CertificateArn
   RDSResourcesDBNameParameterF7365EAE:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /itrender/POSTGRES_DB
