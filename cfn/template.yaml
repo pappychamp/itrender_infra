@@ -502,6 +502,11 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: itrender.net
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
   S3ResourcesWebsiteBucketPolicyD43366E4:
