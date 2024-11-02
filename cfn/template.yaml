@@ -501,19 +501,7 @@ Resources:
   S3ResourcesWebsiteBucket6F8BAB69:
     Type: AWS::S3::Bucket
     Properties:
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
       BucketName: itrender.net
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
-      WebsiteConfiguration:
-        ErrorDocument: error.html
-        IndexDocument: index.html
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
   S3ResourcesWebsiteBucketPolicyD43366E4:
@@ -521,29 +509,6 @@ Resources:
     Properties:
       Bucket:
         Ref: S3ResourcesWebsiteBucket6F8BAB69
-      PolicyDocument:
-        Statement:
-          - Action: s3:GetObject
-            Effect: Allow
-            Principal:
-              AWS: "*"
-            Resource:
-              Fn::Join:
-                - ""
-                - - Fn::GetAtt:
-                      - S3ResourcesWebsiteBucket6F8BAB69
-                      - Arn
-                  - /*
-        Version: "2012-10-17"
-  S3ResourcessamplewebsiteBucketCACF3CDD:
-    Type: AWS::S3::Bucket
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-  S3ResourcessamplewebsiteBucketPolicy51D0B764:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket:
-        Ref: S3ResourcessamplewebsiteBucketCACF3CDD
       PolicyDocument:
         Statement:
           - Action: s3:GetObject
@@ -565,7 +530,7 @@ Resources:
               Fn::Join:
                 - ""
                 - - Fn::GetAtt:
-                      - S3ResourcessamplewebsiteBucketCACF3CDD
+                      - S3ResourcesWebsiteBucket6F8BAB69
                       - Arn
                   - /*
         Version: "2012-10-17"
@@ -601,7 +566,7 @@ Resources:
         Origins:
           - DomainName:
               Fn::GetAtt:
-                - S3ResourcessamplewebsiteBucketCACF3CDD
+                - S3ResourcesWebsiteBucket6F8BAB69
                 - RegionalDomainName
             Id: ItrenderCloudFrontResourcesDistributionOrigin1C38E7B4D
             OriginAccessControlId:
