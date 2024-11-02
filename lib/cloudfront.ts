@@ -26,7 +26,7 @@ export class CloudFrontResources extends Construct {
       certificate: certificate,
       defaultBehavior: {
         origin: cloudfront_origins.S3BucketOrigin.withOriginAccessControl(
-          s3Resources.samplewebsiteBucket
+          s3Resources.websiteBucket
         ),
       },
     });
