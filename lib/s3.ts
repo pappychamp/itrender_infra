@@ -10,6 +10,12 @@ export class S3Resources extends Construct {
     // S3バケットを作成
     this.websiteBucket = new Bucket(this, "WebsiteBucket", {
       bucketName: siteDomain,
+      blockPublicAccess: {
+        blockPublicPolicy: true,
+        blockPublicAcls: true,
+        ignorePublicAcls: true,
+        restrictPublicBuckets: true,
+      },
     });
 
     const samBucket = new Bucket(this, "SAMBucket", {
