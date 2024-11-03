@@ -555,51 +555,6 @@ Resources:
       BucketName: itrender-sam-bucket
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
-  CloudFrontResourcesDistributionOrigin1S3OriginAccessControlA96A45E9:
-    Type: AWS::CloudFront::OriginAccessControl
-    Properties:
-      OriginAccessControlConfig:
-        Name: ItrenderCloudFrontResourcesDOrigin1S3OriginAccessControl38F1D73B
-        OriginAccessControlOriginType: s3
-        SigningBehavior: always
-        SigningProtocol: sigv4
-  CloudFrontResourcesDistribution773EB15D:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        Aliases:
-          - itrender.net
-        DefaultCacheBehavior:
-          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
-          Compress: true
-          TargetOriginId: ItrenderCloudFrontResourcesDistributionOrigin1C38E7B4D
-          ViewerProtocolPolicy: allow-all
-        DefaultRootObject: index.html
-        Enabled: true
-        HttpVersion: http2
-        IPV6Enabled: true
-        Origins:
-          - DomainName:
-              Fn::GetAtt:
-                - S3ResourcesWebsiteBucket6F8BAB69
-                - RegionalDomainName
-            Id: ItrenderCloudFrontResourcesDistributionOrigin1C38E7B4D
-            OriginAccessControlId:
-              Fn::GetAtt:
-                - CloudFrontResourcesDistributionOrigin1S3OriginAccessControlA96A45E9
-                - Id
-            S3OriginConfig:
-              OriginAccessIdentity: ""
-        Restrictions:
-          GeoRestriction:
-            Locations:
-              - JP
-            RestrictionType: whitelist
-        ViewerCertificate:
-          AcmCertificateArn:
-            Ref: SsmParameterValueitrenderCertificateArnC96584B6F00A464EAD1953AFF4B05118Parameter
-          MinimumProtocolVersion: TLSv1.2_2021
-          SslSupportMethod: sni-only
   RDSResourcesDBSecretManager80A5E4EA:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -1102,10 +1057,75 @@ Resources:
           - ""
           - - integrations/
             - Ref: apigatewayResourcesBackendApiGWANYproxyBackendIntegrationE09BA4F3
+  CloudFrontResourcesDistributionOrigin1S3OriginAccessControlA96A45E9:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: ItrenderCloudFrontResourcesDOrigin1S3OriginAccessControl38F1D73B
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  CloudFrontResourcesDistribution773EB15D:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - itrender.net
+        CacheBehaviors:
+          - CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: true
+            PathPattern: /api/*
+            TargetOriginId: ItrenderCloudFrontResourcesDistributionOrigin2C6918918
+            ViewerProtocolPolicy: https-only
+        DefaultCacheBehavior:
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          Compress: true
+          TargetOriginId: ItrenderCloudFrontResourcesDistributionOrigin1C38E7B4D
+          ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName:
+              Fn::GetAtt:
+                - S3ResourcesWebsiteBucket6F8BAB69
+                - RegionalDomainName
+            Id: ItrenderCloudFrontResourcesDistributionOrigin1C38E7B4D
+            OriginAccessControlId:
+              Fn::GetAtt:
+                - CloudFrontResourcesDistributionOrigin1S3OriginAccessControlA96A45E9
+                - Id
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+          - CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            DomainName:
+              Fn::Select:
+                - 0
+                - Fn::Split:
+                    - /
+                    - Fn::Select:
+                        - 1
+                        - Fn::Split:
+                            - ://
+                            - Fn::GetAtt:
+                                - apigatewayResourcesBackendApiGW54E5CD70
+                                - ApiEndpoint
+            Id: ItrenderCloudFrontResourcesDistributionOrigin2C6918918
+        Restrictions:
+          GeoRestriction:
+            Locations:
+              - JP
+            RestrictionType: whitelist
+        ViewerCertificate:
+          AcmCertificateArn:
+            Ref: SsmParameterValueitrenderCertificateArnC96584B6F00A464EAD1953AFF4B05118Parameter
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
 Parameters:
-  SsmParameterValueitrenderCertificateArnC96584B6F00A464EAD1953AFF4B05118Parameter:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /itrender/CertificateArn
   RDSResourcesDBNameParameterF7365EAE:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /itrender/POSTGRES_DB
@@ -1121,4 +1141,7 @@ Parameters:
   SsmParameterValueitrenderSENTRYDSNbackendC96584B6F00A464EAD1953AFF4B05118Parameter:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /itrender/SENTRY_DSN/backend
+  SsmParameterValueitrenderCertificateArnC96584B6F00A464EAD1953AFF4B05118Parameter:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /itrender/CertificateArn
 

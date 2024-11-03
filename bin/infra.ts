@@ -34,12 +34,6 @@ const securitygroupResources = new SecurityGroupResources(
 const iamResources = new IAMResources(stack, "IAMResources");
 // S3リソースを追加
 const s3Resources = new S3Resources(stack, "S3Resources");
-// CloudFrontリソースを追加
-const cloudfrontResources = new CloudFrontResources(
-  stack,
-  "CloudFrontResources",
-  s3Resources
-);
 // RDSリソースを追加
 const rdsResources = new RDSResources(
   stack,
@@ -73,4 +67,11 @@ const apigatewayResources = new ApiGatewayResources(
   stack,
   "apigatewayResources",
   lambdaResources
+);
+// CloudFrontリソースを追加
+const cloudfrontResources = new CloudFrontResources(
+  stack,
+  "CloudFrontResources",
+  s3Resources,
+  apigatewayResources
 );

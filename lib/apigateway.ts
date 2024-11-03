@@ -4,6 +4,8 @@ import { LambdaResources } from "./lambda";
 import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
 
 export class ApiGatewayResources extends Construct {
+  public readonly BackendApiEndpoint: string;
+
   constructor(scope: Construct, id: string, lambdaResources: LambdaResources) {
     super(scope, id);
 
@@ -21,5 +23,8 @@ export class ApiGatewayResources extends Construct {
         lambdaResources.lambdaFunction
       ),
     });
+
+    // API Gateway エンドポイントの URL を取得
+    this.BackendApiEndpoint = backendApiGW.apiEndpoint;
   }
 }
