@@ -65,7 +65,8 @@ const eventbridgeResources = new EventBridgeResources(
 const lambdaResources = new LambdaResources(
   stack,
   "LambdaResources",
-  ecrResources
+  ecrResources,
+  networkResources.vpc
 );
 // apigatewayリソースの追加
 const apigatewayResources = new ApiGatewayResources(
