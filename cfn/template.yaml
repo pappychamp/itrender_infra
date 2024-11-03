@@ -921,6 +921,16 @@ Resources:
             Fn::GetAtt:
               - ECSResourcesitrenderBatchTaskDefinitionEventsRoleB3A33D4D
               - Arn
+  LambdaResourcesBackendFunctionSecurityGroup778CE9C3:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Lambda to access the database
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
   LambdaResourcesBackendFunctionServiceRoleB7200743:
     Type: AWS::IAM::Role
     Properties:
@@ -937,6 +947,14 @@ Resources:
             - - "arn:"
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+    DependsOn:
+      - NetworkResourcesVPCPrivateSubnet1RouteTableAssociation7A10B50D
+      - NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9
   LambdaResourcesBackendFunctionC9C2709E:
     Type: AWS::Lambda::Function
     Properties:
@@ -1016,8 +1034,18 @@ Resources:
           - LambdaResourcesBackendFunctionServiceRoleB7200743
           - Arn
       Timeout: 30
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::GetAtt:
+              - LambdaResourcesBackendFunctionSecurityGroup778CE9C3
+              - GroupId
+        SubnetIds:
+          - Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
+          - Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
     DependsOn:
       - LambdaResourcesBackendFunctionServiceRoleB7200743
+      - NetworkResourcesVPCPrivateSubnet1RouteTableAssociation7A10B50D
+      - NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9
   apigatewayResourcesBackendApiGW54E5CD70:
     Type: AWS::ApiGatewayV2::Api
     Properties:
