@@ -9,6 +9,7 @@ import { siteDomain } from "./constants";
 export class CloudFrontResources extends Construct {
   constructor(scope: Construct, id: string, s3Resources: S3Resources) {
     super(scope, id);
+
     const certificateArn = ssm.StringParameter.valueForStringParameter(
       this,
       "/itrender/CertificateArn"
@@ -24,6 +25,7 @@ export class CloudFrontResources extends Construct {
       domainNames: [siteDomain],
       defaultRootObject: "index.html",
       certificate: certificate,
+      geoRestriction: cloudfront.GeoRestriction.allowlist("JP"),
       defaultBehavior: {
         origin: cloudfront_origins.S3BucketOrigin.withOriginAccessControl(
           s3Resources.websiteBucket

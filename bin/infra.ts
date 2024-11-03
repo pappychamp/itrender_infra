@@ -10,6 +10,8 @@ import { EventBridgeResources } from "../lib/eventbridge";
 import { RDSResources } from "../lib/rds";
 import { S3Resources } from "../lib/s3";
 import { CloudFrontResources } from "../lib/cloudfront";
+import { LambdaResources } from "../lib/lambda";
+import { ApiGatewayResources } from "../lib/apigateway";
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, "Itrender", {
@@ -58,4 +60,16 @@ const eventbridgeResources = new EventBridgeResources(
   stack,
   "EventBridgeResources",
   ecsResources
+);
+// Lambdaリソースを追加
+const lambdaResources = new LambdaResources(
+  stack,
+  "LambdaResources",
+  ecrResources
+);
+// apigatewayリソースの追加
+const apigatewayResources = new ApiGatewayResources(
+  stack,
+  "apigatewayResources",
+  lambdaResources
 );
