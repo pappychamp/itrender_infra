@@ -36,7 +36,6 @@ export class CloudFrontResources extends Construct {
       0,
       cdk.Fn.split("/", apiEndPointUrlWithoutProtocol)
     );
-
     // CloudFront ディストリビューションの作成
     const distribution = new cloudfront.Distribution(this, "Distribution", {
       domainNames: [siteDomain],
@@ -55,6 +54,9 @@ export class CloudFrontResources extends Construct {
           origin: new cloudfront_origins.HttpOrigin(apiEndPointDomainName, {}),
           viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.HTTPS_ONLY,
           cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+          originRequestPolicy:
+            cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
         },
       },
     });
