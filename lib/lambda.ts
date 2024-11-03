@@ -42,7 +42,7 @@ export class LambdaResources extends Construct {
       }),
       runtime: lambda.Runtime.FROM_IMAGE,
       handler: lambda.Handler.FROM_IMAGE,
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.seconds(10),
       environment: {
         POSTGRES_USER: `${secretJson
           .secretValueFromJson("username")
