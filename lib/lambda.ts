@@ -4,6 +4,7 @@ import { Construct } from "constructs";
 import { ECRResources } from "./ecr";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
 import * as ssm from "aws-cdk-lib/aws-ssm";
+import * as logs from "aws-cdk-lib/aws-logs";
 
 export class LambdaResources extends Construct {
   public readonly lambdaFunction: lambda.Function;
@@ -25,7 +26,6 @@ export class LambdaResources extends Construct {
       runtime: lambda.Runtime.FROM_IMAGE,
       handler: lambda.Handler.FROM_IMAGE,
       timeout: cdk.Duration.seconds(30),
-      logRetention: 7,
       environment: {
         POSTGRES_USER: `${secretJson
           .secretValueFromJson("username")
