@@ -86,6 +86,7 @@ export class RDSResources extends Construct {
       }),
       vpc,
       credentials: rds.Credentials.fromSecret(this.newDBSecret),
+      databaseName: dbName.stringValue, // データベース名
       multiAz: false, // マルチアベイラビリティゾーン
       allocatedStorage: 20, // 20GBのストレージ
       maxAllocatedStorage: 100,

@@ -689,6 +689,8 @@ Resources:
       BackupRetentionPeriod: 7
       CopyTagsToSnapshot: true
       DBInstanceClass: db.t3.micro
+      DBName:
+        Ref: RDSResourcesDBNameParameterF7365EAE
       DBSubnetGroupName:
         Ref: RDSResourcesNewRDSInstanceSubnetGroup24F3E5C8
       Engine: postgres
