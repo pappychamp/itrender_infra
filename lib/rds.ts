@@ -71,7 +71,7 @@ export class RDSResources extends Construct {
     );
 
     this.newDBSecret = new secretsmanager.Secret(this, "NewDBSecretManager", {
-      secretName: "itrenderDatabaseSecret", // シークレットの名前
+      secretName: "newDatabaseSecret", // シークレットの名前
       generateSecretString: {
         secretStringTemplate: JSON.stringify({ username: "itrenderdbUser" }), // 自動生成されたユーザー名を設定
         generateStringKey: "password", // パスワードを生成する
