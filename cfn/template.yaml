@@ -648,7 +648,7 @@ Resources:
         ExcludePunctuation: true
         GenerateStringKey: password
         SecretStringTemplate: '{"username":"itrenderdbUser"}'
-      Name: itrenderDatabaseSecret
+      Name: newDatabaseSecret
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
   RDSResourcesNewDBSecretManagerAttachmentB8ACF44D:
