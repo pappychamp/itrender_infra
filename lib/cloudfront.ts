@@ -59,6 +59,15 @@ export class CloudFrontResources extends Construct {
             cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
         },
       },
+      // 403エラーが発生したときのカスタムエラーレスポンス設定
+      errorResponses: [
+        {
+          httpStatus: 403, // 403エラーをカスタム設定
+          responseHttpStatus: 200, // レスポンスを200に設定
+          responsePagePath: "/index.html", // index.htmlを返す
+          ttl: cdk.Duration.seconds(0), // キャッシュTTLを設定
+        },
+      ],
     });
   }
 }

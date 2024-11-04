@@ -1086,6 +1086,11 @@ Resources:
             PathPattern: /api/*
             TargetOriginId: ItrenderCloudFrontResourcesDistributionOrigin2C6918918
             ViewerProtocolPolicy: https-only
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 0
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
         DefaultCacheBehavior:
           CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
           Compress: true
