@@ -641,6 +641,80 @@ Resources:
         Fn::GetAtt:
           - RDSResourcesRDSInstance6A09BF0E
           - Endpoint.Address
+  RDSResourcesNewDBSecretManager1106A7C3:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        ExcludePunctuation: true
+        GenerateStringKey: password
+        SecretStringTemplate: '{"username":"itrenderdbUser"}'
+      Name: itrenderDatabaseSecret
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+  RDSResourcesNewDBSecretManagerAttachmentB8ACF44D:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    Properties:
+      SecretId:
+        Ref: RDSResourcesNewDBSecretManager1106A7C3
+      TargetId:
+        Ref: RDSResourcesNewRDSInstance36B29509
+      TargetType: AWS::RDS::DBInstance
+  RDSResourcesNewRDSInstanceSubnetGroup24F3E5C8:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for NewRDSInstance database
+      SubnetIds:
+        - Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
+        - Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
+  RDSResourcesNewRDSInstanceSecurityGroup03D1606F:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for NewRDSInstance database
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow PostgreSQL access
+          FromPort: 5432
+          IpProtocol: tcp
+          ToPort: 5432
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+  RDSResourcesNewRDSInstance36B29509:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: "20"
+      BackupRetentionPeriod: 7
+      CopyTagsToSnapshot: true
+      DBInstanceClass: db.t3.micro
+      DBSubnetGroupName:
+        Ref: RDSResourcesNewRDSInstanceSubnetGroup24F3E5C8
+      Engine: postgres
+      EngineVersion: "16.3"
+      MasterUserPassword:
+        Fn::Join:
+          - ""
+          - - "{{resolve:secretsmanager:"
+            - Ref: RDSResourcesNewDBSecretManager1106A7C3
+            - :SecretString:password::}}
+      MasterUsername:
+        Fn::Join:
+          - ""
+          - - "{{resolve:secretsmanager:"
+            - Ref: RDSResourcesNewDBSecretManager1106A7C3
+            - :SecretString:username::}}
+      MaxAllocatedStorage: 100
+      MultiAZ: false
+      PubliclyAccessible: false
+      StorageType: gp2
+      VPCSecurityGroups:
+        - Fn::GetAtt:
+            - RDSResourcesNewRDSInstanceSecurityGroup03D1606F
+            - GroupId
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
   ECSResourcesitrenderClusterE6F3C61F:
     Type: AWS::ECS::Cluster
     Properties:
