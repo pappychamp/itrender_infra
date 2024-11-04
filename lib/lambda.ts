@@ -21,7 +21,7 @@ export class LambdaResources extends Construct {
 
     const { region, accountId } = new cdk.ScopedAws(this);
     const secretJson = Secret.fromSecretAttributes(this, "SecretStrings", {
-      secretCompleteArn: `arn:aws:secretsmanager:${region}:${accountId}:secret:itrenderDatabaseSecret-NdOd6w`,
+      secretCompleteArn: `arn:aws:secretsmanager:${region}:${accountId}:secret:newDatabaseSecret-eegf6t`,
     });
 
     const lambdaSecurityGroup = new ec2.SecurityGroup(

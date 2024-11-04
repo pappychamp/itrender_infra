@@ -65,21 +65,24 @@ export class ECSResources extends Construct {
         ENVIRONMENT: "production",
       },
       secrets: {
-        HOST_NAME: ecs.Secret.fromSecretsManager(rdsResources.dbSecret, "host"),
+        HOST_NAME: ecs.Secret.fromSecretsManager(
+          rdsResources.newDBSecret,
+          "host"
+        ),
         PORT_NUMBER: ecs.Secret.fromSecretsManager(
-          rdsResources.dbSecret,
+          rdsResources.newDBSecret,
           "port"
         ),
         POSTGRES_DB: ecs.Secret.fromSecretsManager(
-          rdsResources.dbSecret,
+          rdsResources.newDBSecret,
           "dbname"
         ),
         POSTGRES_PASSWORD: ecs.Secret.fromSecretsManager(
-          rdsResources.dbSecret,
+          rdsResources.newDBSecret,
           "password"
         ),
         POSTGRES_USER: ecs.Secret.fromSecretsManager(
-          rdsResources.dbSecret,
+          rdsResources.newDBSecret,
           "username"
         ),
         QIITA_ACCESS_TOKEN: ecs.Secret.fromSsmParameter(
