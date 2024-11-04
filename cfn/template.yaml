@@ -446,7 +446,7 @@ Resources:
               - secretsmanager:GetSecretValue
             Effect: Allow
             Resource:
-              Ref: RDSResourcesDBSecretManager80A5E4EA
+              Ref: RDSResourcesNewDBSecretManager1106A7C3
           - Action:
               - ssm:DescribeParameters
               - ssm:GetParameter
@@ -555,92 +555,6 @@ Resources:
       BucketName: itrender-sam-bucket
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
-  RDSResourcesDBSecretManager80A5E4EA:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      GenerateSecretString:
-        ExcludePunctuation: true
-        GenerateStringKey: password
-        SecretStringTemplate: '{"username":"itrenderdbUser"}'
-      Name: itrenderDatabaseSecret
-    UpdateReplacePolicy: Delete
-    DeletionPolicy: Delete
-  RDSResourcesDBSecretManagerAttachment138C876E:
-    Type: AWS::SecretsManager::SecretTargetAttachment
-    Properties:
-      SecretId:
-        Ref: RDSResourcesDBSecretManager80A5E4EA
-      TargetId:
-        Ref: RDSResourcesRDSInstance6A09BF0E
-      TargetType: AWS::RDS::DBInstance
-  RDSResourcesRDSInstanceSubnetGroup8A6EBCCD:
-    Type: AWS::RDS::DBSubnetGroup
-    Properties:
-      DBSubnetGroupDescription: Subnet group for RDSInstance database
-      SubnetIds:
-        - Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
-        - Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
-  RDSResourcesRDSInstanceSecurityGroupA0A02CFB:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for RDSInstance database
-      SecurityGroupEgress:
-        - CidrIp: 0.0.0.0/0
-          Description: Allow all outbound traffic by default
-          IpProtocol: "-1"
-      SecurityGroupIngress:
-        - CidrIp: 0.0.0.0/0
-          Description: Allow PostgreSQL access
-          FromPort: 5432
-          IpProtocol: tcp
-          ToPort: 5432
-      VpcId:
-        Ref: NetworkResourcesVPCD71E3A67
-  RDSResourcesRDSInstance6A09BF0E:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      AllocatedStorage: "100"
-      BackupRetentionPeriod: 7
-      CopyTagsToSnapshot: true
-      DBInstanceClass: db.t3.micro
-      DBName:
-        Ref: RDSResourcesDBNameParameterF7365EAE
-      DBSubnetGroupName:
-        Ref: RDSResourcesRDSInstanceSubnetGroup8A6EBCCD
-      Engine: postgres
-      EngineVersion: "16.3"
-      MasterUserPassword:
-        Fn::Join:
-          - ""
-          - - "{{resolve:secretsmanager:"
-            - Ref: RDSResourcesDBSecretManager80A5E4EA
-            - :SecretString:password::}}
-      MasterUsername:
-        Fn::Join:
-          - ""
-          - - "{{resolve:secretsmanager:"
-            - Ref: RDSResourcesDBSecretManager80A5E4EA
-            - :SecretString:username::}}
-      MaxAllocatedStorage: 500
-      MultiAZ: false
-      PubliclyAccessible: false
-      StorageType: gp2
-      VPCSecurityGroups:
-        - Fn::GetAtt:
-            - RDSResourcesRDSInstanceSecurityGroupA0A02CFB
-            - GroupId
-    UpdateReplacePolicy: Delete
-    DeletionPolicy: Delete
-  RDSResourcesRdsEndpointParameter5BEEE7E6:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Description: RDS Instance Endpoint
-      Name: /itrender/HOST_NAME
-      Type: String
-      Value:
-        Fn::GetAtt:
-          - RDSResourcesRDSInstance6A09BF0E
-          - Endpoint.Address
   RDSResourcesNewDBSecretManager1106A7C3:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -780,31 +694,31 @@ Resources:
               ValueFrom:
                 Fn::Join:
                   - ""
-                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                  - - Ref: RDSResourcesNewDBSecretManager1106A7C3
                     - ":host::"
             - Name: PORT_NUMBER
               ValueFrom:
                 Fn::Join:
                   - ""
-                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                  - - Ref: RDSResourcesNewDBSecretManager1106A7C3
                     - ":port::"
             - Name: POSTGRES_DB
               ValueFrom:
                 Fn::Join:
                   - ""
-                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                  - - Ref: RDSResourcesNewDBSecretManager1106A7C3
                     - ":dbname::"
             - Name: POSTGRES_PASSWORD
               ValueFrom:
                 Fn::Join:
                   - ""
-                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                  - - Ref: RDSResourcesNewDBSecretManager1106A7C3
                     - ":password::"
             - Name: POSTGRES_USER
               ValueFrom:
                 Fn::Join:
                   - ""
-                  - - Ref: RDSResourcesDBSecretManager80A5E4EA
+                  - - Ref: RDSResourcesNewDBSecretManager1106A7C3
                     - ":username::"
             - Name: QIITA_ACCESS_TOKEN
               ValueFrom:
@@ -1022,7 +936,7 @@ Resources:
                 - Ref: AWS::Region
                 - ":"
                 - Ref: AWS::AccountId
-                - :secret:itrenderDatabaseSecret-NdOd6w:SecretString:username::}}
+                - :secret:newDatabaseSecret-eegf6t:SecretString:username::}}
           POSTGRES_PASSWORD:
             Fn::Join:
               - ""
@@ -1030,7 +944,7 @@ Resources:
                 - Ref: AWS::Region
                 - ":"
                 - Ref: AWS::AccountId
-                - :secret:itrenderDatabaseSecret-NdOd6w:SecretString:password::}}
+                - :secret:newDatabaseSecret-eegf6t:SecretString:password::}}
           POSTGRES_DB:
             Fn::Join:
               - ""
@@ -1038,7 +952,7 @@ Resources:
                 - Ref: AWS::Region
                 - ":"
                 - Ref: AWS::AccountId
-                - :secret:itrenderDatabaseSecret-NdOd6w:SecretString:dbname::}}
+                - :secret:newDatabaseSecret-eegf6t:SecretString:dbname::}}
           HOST_NAME:
             Fn::Join:
               - ""
@@ -1046,7 +960,7 @@ Resources:
                 - Ref: AWS::Region
                 - ":"
                 - Ref: AWS::AccountId
-                - :secret:itrenderDatabaseSecret-NdOd6w:SecretString:host::}}
+                - :secret:newDatabaseSecret-eegf6t:SecretString:host::}}
           PORT_NUMBER:
             Fn::Join:
               - ""
@@ -1054,7 +968,7 @@ Resources:
                 - Ref: AWS::Region
                 - ":"
                 - Ref: AWS::AccountId
-                - :secret:itrenderDatabaseSecret-NdOd6w:SecretString:port::}}
+                - :secret:newDatabaseSecret-eegf6t:SecretString:port::}}
           SENTRY_DSN:
             Ref: SsmParameterValueitrenderSENTRYDSNbackendC96584B6F00A464EAD1953AFF4B05118Parameter
           ENVIRONMENT: production
