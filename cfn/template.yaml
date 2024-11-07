@@ -991,18 +991,25 @@ Resources:
       - LambdaResourcesBackendFunctionServiceRoleB7200743
       - NetworkResourcesVPCPrivateSubnet1RouteTableAssociation7A10B50D
       - NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9
+  apigatewayResourcesApiGatewayAccessLogsA65962CB:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /apigateway
+      RetentionInDays: 7
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+  apigatewayResourcesApiGatewayAccessLogs297844818:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /apigateway2
+      RetentionInDays: 7
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
   apigatewayResourcesBackendApiGW54E5CD70:
     Type: AWS::ApiGatewayV2::Api
     Properties:
       Name: BackendApiGW
       ProtocolType: HTTP
-  apigatewayResourcesBackendApiGWDefaultStageBB970112:
-    Type: AWS::ApiGatewayV2::Stage
-    Properties:
-      ApiId:
-        Ref: apigatewayResourcesBackendApiGW54E5CD70
-      AutoDeploy: true
-      StageName: $default
   apigatewayResourcesBackendApiGWANYproxyBackendIntegrationE09BA4F3:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
@@ -1047,6 +1054,35 @@ Resources:
           - ""
           - - integrations/
             - Ref: apigatewayResourcesBackendApiGWANYproxyBackendIntegrationE09BA4F3
+  apigatewayResourcesBackendApiGWprodD97BC4B3:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      AccessLogSettings:
+        DestinationArn:
+          Fn::GetAtt:
+            - apigatewayResourcesApiGatewayAccessLogsA65962CB
+            - Arn
+        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "user":"$context.identity.user","requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath", "status":"$context.status", "errorMessage": "$context.error.message", "protocol":"$context.protocol" }'
+      ApiId:
+        Ref: apigatewayResourcesBackendApiGW54E5CD70
+      AutoDeploy: true
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 50
+        ThrottlingRateLimit: 10
+      StageName: api
+  apigatewayResourcesBackendApiGWdev15D73E41:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      AccessLogSettings:
+        DestinationArn:
+          Fn::GetAtt:
+            - apigatewayResourcesApiGatewayAccessLogs297844818
+            - Arn
+        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "user":"$context.identity.user","requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath", "status":"$context.status", "errorMessage": "$context.error.message", "protocol":"$context.protocol" }'
+      ApiId:
+        Ref: apigatewayResourcesBackendApiGW54E5CD70
+      AutoDeploy: true
+      StageName: dev
   CloudFrontResourcesDistributionOrigin1S3OriginAccessControlA96A45E9:
     Type: AWS::CloudFront::OriginAccessControl
     Properties:
