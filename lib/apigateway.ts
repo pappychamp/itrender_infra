@@ -15,10 +15,6 @@ export class ApiGatewayResources extends Construct {
       logGroupName: "/apigateway",
       retention: logs.RetentionDays.ONE_WEEK,
     });
-    const logGroup2 = new logs.LogGroup(this, "ApiGatewayAccessLogs2", {
-      logGroupName: "/apigateway2",
-      retention: logs.RetentionDays.ONE_WEEK,
-    });
 
     // API Gateway を作成
     const backendApiGW = new apigateway.HttpApi(this, "BackendApiGW", {
@@ -43,19 +39,9 @@ export class ApiGatewayResources extends Construct {
         rateLimit: 10, // 毎秒のリクエスト制限
       },
     });
-    const apiStage2 = backendApiGW.addStage("dev", {
-      stageName: "dev",
-      autoDeploy: true,
-    });
     const stage = apiStage.node.defaultChild as apigateway.CfnStage;
     stage.accessLogSettings = {
       destinationArn: logGroup.logGroupArn,
-      format:
-        '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "user":"$context.identity.user","requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath", "status":"$context.status", "errorMessage": "$context.error.message", "protocol":"$context.protocol" }',
-    };
-    const stage2 = apiStage2.node.defaultChild as apigateway.CfnStage;
-    stage2.accessLogSettings = {
-      destinationArn: logGroup2.logGroupArn,
       format:
         '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "user":"$context.identity.user","requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath", "status":"$context.status", "errorMessage": "$context.error.message", "protocol":"$context.protocol" }',
     };
