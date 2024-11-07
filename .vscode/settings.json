@@ -10,4 +10,9 @@
     // "editor.codeActionsOnSave": {
     //     "source.fixAll.eslint": true
     // }
+    "yaml.schemas": {
+        "https://json.schemastore.org/yamllint.json": [
+            "cfn/template.yaml" // template.yaml ファイルはyaml-schmaを除外(https://github.com/redhat-developer/vscode-yaml/issues/245)
+        ]
+    }
 }
