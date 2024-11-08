@@ -1237,7 +1237,7 @@ Resources:
                 {
                   "version": "0.2",
                   "phases": {
-                    "login": {
+                    "pre_build": {
                       "commands": [
                         "aws ecr get-login-password --region 
               - Ref: AWS::Region
@@ -1249,7 +1249,7 @@ Resources:
                 .amazonaws.com"
                       ]
                     },
-                    "update": {
+                    "build": {
                       "commands": [
                         "aws lambda update-function-code --function-name 
               - Ref: LambdaResourcesBackendFunctionC9C2709E

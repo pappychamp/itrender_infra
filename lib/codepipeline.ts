@@ -29,12 +29,12 @@ export class CodePipelineResources extends Construct {
         buildSpec: codebuild.BuildSpec.fromObject({
           version: "0.2",
           phases: {
-            login: {
+            pre_build: {
               commands: [
                 `aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.${region}.amazonaws.com`,
               ],
             },
-            update: {
+            build: {
               commands: [
                 `aws lambda update-function-code --function-name ${lambdaResources.lambdaFunction.functionName} --image-uri ${ecrResources.backendRepository.repositoryUri}:latest`,
               ],
