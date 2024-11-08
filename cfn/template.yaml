@@ -1237,7 +1237,19 @@ Resources:
                 {
                   "version": "0.2",
                   "phases": {
-                    "build": {
+                    "login": {
+                      "commands": [
+                        "aws ecr get-login-password --region 
+              - Ref: AWS::Region
+              - " | docker login --username AWS --password-stdin "
+              - Ref: AWS::AccountId
+              - .dkr.ecr.
+              - Ref: AWS::Region
+              - |-
+                .amazonaws.com"
+                      ]
+                    },
+                    "update": {
                       "commands": [
                         "aws lambda update-function-code --function-name 
               - Ref: LambdaResourcesBackendFunctionC9C2709E

@@ -13,12 +13,13 @@ export class CodePipelineResources extends Construct {
     scope: Construct,
     id: string,
     ecrResources: ECRResources,
-    lambdaResources: LambdaResources
+    lambdaResources: LambdaResources,
+    region: string,
+    accountId: string
   ) {
     super(scope, id);
 
     const sourceOutput = new codepipeline.Artifact();
-    const { region, accountId } = new cdk.ScopedAws(this);
 
     // backendPipelineで使用するbuildプロジェクト
     const backendLambdaUpdateProject = new codebuild.PipelineProject(
@@ -28,7 +29,12 @@ export class CodePipelineResources extends Construct {
         buildSpec: codebuild.BuildSpec.fromObject({
           version: "0.2",
           phases: {
-            build: {
+            login: {
+              commands: [
+                `aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.${region}.amazonaws.com`,
+              ],
+            },
+            update: {
               commands: [
                 `aws lambda update-function-code --function-name ${lambdaResources.lambdaFunction.functionName} --image-uri ${ecrResources.backendRepository.repositoryUri}:latest`,
               ],
