@@ -15,11 +15,12 @@ export class LambdaResources extends Construct {
     scope: Construct,
     id: string,
     ecrResources: ECRResources,
-    vpc: ec2.Vpc
+    vpc: ec2.Vpc,
+    region: string,
+    accountId: string
   ) {
     super(scope, id);
 
-    const { region, accountId } = new cdk.ScopedAws(this);
     const secretJson = Secret.fromSecretAttributes(this, "SecretStrings", {
       secretCompleteArn: `arn:aws:secretsmanager:${region}:${accountId}:secret:newDatabaseSecret-eegf6t`,
     });
