@@ -1243,7 +1243,8 @@ Resources:
                         "imageDigest=$(aws ecr describe-images --repository-name 
               - Ref: ECRResourcesBackendRepository0DE1D09D
               - |-2
-                 | jq -r '.imageDetails[] | select(.imageTags[] == \"latest\") | .imageDigest')",
+                 | jq -r '.imageDetails[] | select(.imageTags == [\"latest\"]) | .imageDigest')",
+                        "echo \"Image Digest: $imageDigest\"",
                         "aws lambda update-function-code --function-name 
               - Ref: LambdaResourcesBackendFunctionC9C2709E
               - " --image-uri "

@@ -31,7 +31,8 @@ export class CodePipelineResources extends Construct {
             build: {
               commands: [
                 // imageのハッシュを取得
-                `imageDigest=$(aws ecr describe-images --repository-name ${ecrResources.backendRepository.repositoryName} | jq -r '.imageDetails[] | select(.imageTags[] == "latest") | .imageDigest')`,
+                `imageDigest=$(aws ecr describe-images --repository-name ${ecrResources.backendRepository.repositoryName} | jq -r '.imageDetails[] | select(.imageTags == ["latest"]) | .imageDigest')`,
+                `echo "Image Digest: $imageDigest"`,
                 // lambdaを更新
                 `aws lambda update-function-code --function-name ${lambdaResources.lambdaFunction.functionName} --image-uri ${ecrResources.backendRepository.repositoryUri}@$imageDigest`,
               ],
