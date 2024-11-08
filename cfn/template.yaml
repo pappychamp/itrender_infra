@@ -1177,6 +1177,8 @@ Resources:
           - Action:
               - ecr:BatchCheckLayerAvailability
               - ecr:BatchGetImage
+              - ecr:DescribeImages
+              - ecr:DescribeRepositories
               - ecr:GetDownloadUrlForLayer
             Effect: Allow
             Resource:
@@ -1220,11 +1222,10 @@ Resources:
         Type: NO_CACHE
       EncryptionKey: alias/aws/s3
       Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:1.0
-        ImagePullCredentialsType: CODEBUILD
+        ComputeType: BUILD_LAMBDA_1GB
+        Image: aws/codebuild/amazonlinux-x86_64-lambda-standard:corretto21
         PrivilegedMode: false
-        Type: LINUX_CONTAINER
+        Type: LINUX_LAMBDA_CONTAINER
       ServiceRole:
         Fn::GetAtt:
           - CodePipelineResourcesBackendLambdaUpdateProjectRoleC055580A
@@ -1237,20 +1238,12 @@ Resources:
                 {
                   "version": "0.2",
                   "phases": {
-                    "pre_build": {
-                      "commands": [
-                        "aws ecr get-login-password --region 
-              - Ref: AWS::Region
-              - " | docker login --username AWS --password-stdin "
-              - Ref: AWS::AccountId
-              - .dkr.ecr.
-              - Ref: AWS::Region
-              - |-
-                .amazonaws.com"
-                      ]
-                    },
                     "build": {
                       "commands": [
+                        "imageDigest=$(aws ecr describe-images --repository-name 
+              - Ref: ECRResourcesBackendRepository0DE1D09D
+              - |-2
+                 | jq -r '.imageDetails[] | select(.imageTags[] == \"latest\") | .imageDigest')",
                         "aws lambda update-function-code --function-name 
               - Ref: LambdaResourcesBackendFunctionC9C2709E
               - " --image-uri "
@@ -1274,7 +1267,7 @@ Resources:
               - /
               - Ref: ECRResourcesBackendRepository0DE1D09D
               - |-
-                :latest"
+                @$imageDigest"
                       ]
                     }
                   }
