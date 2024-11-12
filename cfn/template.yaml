@@ -827,6 +827,43 @@ Resources:
           IpProtocol: "-1"
       VpcId:
         Ref: NetworkResourcesVPCD71E3A67
+  ECSResourcesBatchService939B8236:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: ECSResourcesitrenderClusterE6F3C61F
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+      DesiredCount: 0
+      EnableECSManagedTags: false
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - Fn::GetAtt:
+                - ECSResourcesBatchServiceSecurityGroupAD15A8BA
+                - GroupId
+          Subnets:
+            - Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
+            - Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
+      TaskDefinition:
+        Ref: ECSResourcesitrenderBatchTaskDefinition912FE447
+    DependsOn:
+      - ECSResourcesitrenderBatchTaskDefinitionTaskRole8CEA45A9
+  ECSResourcesBatchServiceSecurityGroupAD15A8BA:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Itrender/ECSResources/BatchService/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: NetworkResourcesVPCD71E3A67
+    DependsOn:
+      - ECSResourcesitrenderBatchTaskDefinitionTaskRole8CEA45A9
   ECSResourcesBatchLogGroupF877012A:
     Type: AWS::Logs::LogGroup
     Properties:

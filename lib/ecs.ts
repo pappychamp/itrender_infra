@@ -11,6 +11,7 @@ import * as cdk from "aws-cdk-lib";
 export class ECSResources extends Construct {
   public readonly ecsCluster: ecs.Cluster;
   public readonly taskDefinition: ecs.FargateTaskDefinition;
+  public readonly ecsService: ecs.FargateService;
 
   constructor(
     scope: Construct,
@@ -38,6 +39,12 @@ export class ECSResources extends Construct {
         family: "itrenderBatchTaskDefinition",
       }
     );
+    // ECSサービスの作成
+    this.ecsService = new ecs.FargateService(this, "BatchService", {
+      cluster: this.ecsCluster,
+      taskDefinition: this.taskDefinition,
+      desiredCount: 0, // タスク数は0に設定
+    });
 
     // コンテナの定義
     this.taskDefinition.addContainer("BatchTask", {
