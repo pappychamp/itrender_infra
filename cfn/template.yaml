@@ -1740,7 +1740,7 @@ Resources:
               - |-2
                  | jq -r '.imageDetails[] | select(.imageTags == [\"latest\"]) | .imageDigest')",
                         "echo \"Image Digest: $imageDigest\"",
-                        "echo '[{\"name\": \"BatchTask\", \"imageUri\": \"
+                        "printf '[{\"name\": \"BatchTask\", \"imageUri\": \"%s@%s\"}]\n' \"
               - Fn::Select:
                   - 4
                   - Fn::Split:
@@ -1761,7 +1761,7 @@ Resources:
               - /
               - Ref: ECRResourcesBatchRepositoryF70A7F5B
               - |-
-                @$imageDigest\"}]' > imagedefinitions.json",
+                \" \"$imageDigest\" > imagedefinitions.json",
                         "echo \"imagedefinitions.json 内容:\"",
                         "cat imagedefinitions.json"
                       ]

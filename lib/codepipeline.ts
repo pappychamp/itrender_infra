@@ -103,7 +103,7 @@ export class CodePipelineResources extends Construct {
                 `imageDigest=$(aws ecr describe-images --repository-name ${ecrResources.batchRepository.repositoryName} | jq -r '.imageDetails[] | select(.imageTags == ["latest"]) | .imageDigest')`,
                 `echo "Image Digest: $imageDigest"`,
                 // imagedefinitions.json作成
-                `echo '[{"name": "BatchTask", "imageUri": "${ecrResources.batchRepository.repositoryUri}@$imageDigest"}]' > imagedefinitions.json`,
+                `printf '[{"name": "BatchTask", "imageUri": "%s@%s"}]\n' "${ecrResources.batchRepository.repositoryUri}" "$imageDigest" > imagedefinitions.json`,
                 `echo "imagedefinitions.json 内容:"`,
                 `cat imagedefinitions.json`,
               ],
