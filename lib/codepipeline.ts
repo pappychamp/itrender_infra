@@ -9,6 +9,7 @@ import { SNSResources } from "./sns";
 import { ECSResources } from "./ecs";
 export class CodePipelineResources extends Construct {
   public readonly backendPipeline: codepipeline.Pipeline;
+  public readonly batchPipeline: codepipeline.Pipeline;
   constructor(
     scope: Construct,
     id: string,
@@ -126,7 +127,7 @@ export class CodePipelineResources extends Construct {
     ecrResources.batchRepository.grantPull(batchECSUpdateProject);
     ecrResources.batchRepository.grantRead(batchECSUpdateProject);
 
-    this.backendPipeline = new codepipeline.Pipeline(this, "BatchPipeline", {
+    this.batchPipeline = new codepipeline.Pipeline(this, "BatchPipeline", {
       pipelineName: "BatchPipeline",
       crossAccountKeys: false,
       stages: [

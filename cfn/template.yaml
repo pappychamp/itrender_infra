@@ -2213,6 +2213,37 @@ Resources:
                 - ":"
                 - Ref: AWS::AccountId
                 - ":"
+                - Ref: CodePipelineResourcesBackendPipeline12BC99AD
+          Id: Target0
+          RoleArn:
+            Fn::GetAtt:
+              - CodePipelineResourcesBackendPipelineEventsRole46C61BDE
+              - Arn
+  EventBridgeResourcesBatchEcrPushRule4CC5EB00:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.ecr
+        detail-type:
+          - ECR Image Action
+        detail:
+          action-type:
+            - PUSH
+          repositoryName:
+            - Ref: ECRResourcesBatchRepositoryF70A7F5B
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::Join:
+              - ""
+              - - "arn:"
+                - Ref: AWS::Partition
+                - ":codepipeline:"
+                - Ref: AWS::Region
+                - ":"
+                - Ref: AWS::AccountId
+                - ":"
                 - Ref: CodePipelineResourcesBatchPipelineCD71CF92
           Id: Target0
           RoleArn:

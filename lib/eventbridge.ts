@@ -45,5 +45,17 @@ export class EventBridgeResources extends Construct {
         new targets.CodePipeline(codepipelineResources.backendPipeline),
       ],
     });
+    // BatchECRにプッシュされたらCodePipelineを呼び出すイベントルール
+    new events.Rule(this, "BatchEcrPushRule", {
+      eventPattern: {
+        source: ["aws.ecr"],
+        detailType: ["ECR Image Action"],
+        detail: {
+          "action-type": ["PUSH"],
+          repositoryName: [ecrResources.batchRepository.repositoryName],
+        },
+      },
+      targets: [new targets.CodePipeline(codepipelineResources.batchPipeline)],
+    });
   }
 }
