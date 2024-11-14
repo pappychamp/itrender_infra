@@ -1607,6 +1607,553 @@ Resources:
       PolicyName: CodePipelineResourcesBackendPipelineBuildLambdaUpdateCodePipelineActionRoleDefaultPolicy414FAE85
       Roles:
         - Ref: CodePipelineResourcesBackendPipelineBuildLambdaUpdateCodePipelineActionRole6B17734C
+  CodePipelineResourcesBatchECSUpdateProjectRole93823222:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+  CodePipelineResourcesBatchECSUpdateProjectRoleDefaultPolicy5C36A4EE:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: CodePipelineResourcesBatchECSUpdateProject60FC0241
+                    - :*
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: CodePipelineResourcesBatchECSUpdateProject60FC0241
+          - Action:
+              - codebuild:BatchPutCodeCoverages
+              - codebuild:BatchPutTestCases
+              - codebuild:CreateReport
+              - codebuild:CreateReportGroup
+              - codebuild:UpdateReport
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
+                  - Ref: CodePipelineResourcesBatchECSUpdateProject60FC0241
+                  - -*
+          - Action:
+              - ecr:BatchCheckLayerAvailability
+              - ecr:BatchGetImage
+              - ecr:DescribeImages
+              - ecr:DescribeRepositories
+              - ecr:GetDownloadUrlForLayer
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - ECRResourcesBatchRepositoryF70A7F5B
+                - Arn
+          - Action: ecr:GetAuthorizationToken
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CodePipelineResourcesBatchECSUpdateProjectRoleDefaultPolicy5C36A4EE
+      Roles:
+        - Ref: CodePipelineResourcesBatchECSUpdateProjectRole93823222
+  CodePipelineResourcesBatchECSUpdateProject60FC0241:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey: alias/aws/s3
+      Environment:
+        ComputeType: BUILD_LAMBDA_1GB
+        Image: aws/codebuild/amazonlinux-x86_64-lambda-standard:corretto21
+        PrivilegedMode: false
+        Type: LINUX_LAMBDA_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodePipelineResourcesBatchECSUpdateProjectRole93823222
+          - Arn
+      Source:
+        BuildSpec:
+          Fn::Join:
+            - ""
+            - - |-
+                {
+                  "version": "0.2",
+                  "phases": {
+                    "build": {
+                      "commands": [
+                        "imageDigest=$(aws ecr describe-images --repository-name 
+              - Ref: ECRResourcesBatchRepositoryF70A7F5B
+              - |-2
+                 | jq -r '.imageDetails[] | select(.imageTags == [\"latest\"]) | .imageDigest')",
+                        "echo \"Image Digest: $imageDigest\"",
+                        "printf '[{\"name\": \"BatchTask\", \"imageUri\": \"
+              - Fn::Select:
+                  - 4
+                  - Fn::Split:
+                      - ":"
+                      - Fn::GetAtt:
+                          - ECRResourcesBatchRepositoryF70A7F5B
+                          - Arn
+              - .dkr.ecr.
+              - Fn::Select:
+                  - 3
+                  - Fn::Split:
+                      - ":"
+                      - Fn::GetAtt:
+                          - ECRResourcesBatchRepositoryF70A7F5B
+                          - Arn
+              - "."
+              - Ref: AWS::URLSuffix
+              - /
+              - Ref: ECRResourcesBatchRepositoryF70A7F5B
+              - |-
+                @$imageDigest\"}]' > imagedefinitions.json"
+                      ]
+                    }
+                  },
+                  "artifacts": {
+                    "files": [
+                      "imagedefinitions.json"
+                    ]
+                  }
+                }
+        Type: CODEPIPELINE
+  CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+  CodePipelineResourcesBatchPipelineArtifactsBucketPolicy1E59907E:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+  CodePipelineResourcesBatchPipelineRoleEB726DFF:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+        Version: "2012-10-17"
+  CodePipelineResourcesBatchPipelineRoleDefaultPolicyAF886F4A:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                        - Arn
+                    - /*
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineBuildimagedefinitionsCreateCodePipelineActionRole7C19E3C7
+                  - Arn
+              - Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineDeployECSUpdateCodePipelineActionRole74DE45DD
+                  - Arn
+              - Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineSourceECRPullCodePipelineActionRoleD9C04DEE
+                  - Arn
+        Version: "2012-10-17"
+      PolicyName: CodePipelineResourcesBatchPipelineRoleDefaultPolicyAF886F4A
+      Roles:
+        - Ref: CodePipelineResourcesBatchPipelineRoleEB726DFF
+  CodePipelineResourcesBatchPipelineCD71CF92:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Location:
+          Ref: CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+        Type: S3
+      Name: BatchPipeline
+      PipelineType: V2
+      RoleArn:
+        Fn::GetAtt:
+          - CodePipelineResourcesBatchPipelineRoleEB726DFF
+          - Arn
+      Stages:
+        - Actions:
+            - ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: ECR
+                Version: "1"
+              Configuration:
+                RepositoryName:
+                  Ref: ECRResourcesBatchRepositoryF70A7F5B
+                ImageTag: latest
+              Name: ECR-Pull
+              OutputArtifacts:
+                - Name: Artifact_Source_ECR-Pull
+              RoleArn:
+                Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineSourceECRPullCodePipelineActionRoleD9C04DEE
+                  - Arn
+              RunOrder: 1
+          Name: Source
+        - Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: CodePipelineResourcesBatchECSUpdateProject60FC0241
+              InputArtifacts:
+                - Name: Artifact_Source_ECR-Pull
+              Name: imagedefinitions-Create
+              OutputArtifacts:
+                - Name: Artifact_Build_imagedefinitions-Create
+              RoleArn:
+                Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineBuildimagedefinitionsCreateCodePipelineActionRole7C19E3C7
+                  - Arn
+              RunOrder: 1
+          Name: Build
+        - Actions:
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ECS
+                Version: "1"
+              Configuration:
+                ClusterName:
+                  Ref: ECSResourcesitrenderClusterE6F3C61F
+                ServiceName:
+                  Fn::GetAtt:
+                    - ECSResourcesBatchService939B8236
+                    - Name
+              InputArtifacts:
+                - Name: Artifact_Build_imagedefinitions-Create
+              Name: ECS-Update
+              RoleArn:
+                Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineDeployECSUpdateCodePipelineActionRole74DE45DD
+                  - Arn
+              RunOrder: 1
+          Name: Deploy
+    DependsOn:
+      - CodePipelineResourcesBatchPipelineRoleDefaultPolicyAF886F4A
+      - CodePipelineResourcesBatchPipelineRoleEB726DFF
+  CodePipelineResourcesBatchPipelineSourceECRPullCodePipelineActionRoleD9C04DEE:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+        Version: "2012-10-17"
+  CodePipelineResourcesBatchPipelineSourceECRPullCodePipelineActionRoleDefaultPolicyD02ACDB5:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: ecr:DescribeImages
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - ECRResourcesBatchRepositoryF70A7F5B
+                - Arn
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CodePipelineResourcesBatchPipelineSourceECRPullCodePipelineActionRoleDefaultPolicyD02ACDB5
+      Roles:
+        - Ref: CodePipelineResourcesBatchPipelineSourceECRPullCodePipelineActionRoleD9C04DEE
+  CodePipelineResourcesBatchPipelineSourceECRPullItrenderCodePipelineResourcesBatchPipelineDBF4F9C6SourceEventRule9E28B0B1:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        detail-type:
+          - ECR Image Action
+        source:
+          - aws.ecr
+        detail:
+          result:
+            - SUCCESS
+          repository-name:
+            - Ref: ECRResourcesBatchRepositoryF70A7F5B
+          image-tag:
+            - latest
+          action-type:
+            - PUSH
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::Join:
+              - ""
+              - - "arn:"
+                - Ref: AWS::Partition
+                - ":codepipeline:"
+                - Ref: AWS::Region
+                - ":"
+                - Ref: AWS::AccountId
+                - ":"
+                - Ref: CodePipelineResourcesBatchPipelineCD71CF92
+          Id: Target0
+          RoleArn:
+            Fn::GetAtt:
+              - CodePipelineResourcesBatchPipelineEventsRoleD404B6A7
+              - Arn
+  CodePipelineResourcesBatchPipelineEventsRoleD404B6A7:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+  CodePipelineResourcesBatchPipelineEventsRoleDefaultPolicy621AD6BA:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: codepipeline:StartPipelineExecution
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - ":codepipeline:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - ":"
+                  - Ref: CodePipelineResourcesBatchPipelineCD71CF92
+        Version: "2012-10-17"
+      PolicyName: CodePipelineResourcesBatchPipelineEventsRoleDefaultPolicy621AD6BA
+      Roles:
+        - Ref: CodePipelineResourcesBatchPipelineEventsRoleD404B6A7
+  CodePipelineResourcesBatchPipelineBuildimagedefinitionsCreateCodePipelineActionRole7C19E3C7:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+        Version: "2012-10-17"
+  CodePipelineResourcesBatchPipelineBuildimagedefinitionsCreateCodePipelineActionRoleDefaultPolicy7FEC80B2:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodePipelineResourcesBatchECSUpdateProject60FC0241
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: CodePipelineResourcesBatchPipelineBuildimagedefinitionsCreateCodePipelineActionRoleDefaultPolicy7FEC80B2
+      Roles:
+        - Ref: CodePipelineResourcesBatchPipelineBuildimagedefinitionsCreateCodePipelineActionRole7C19E3C7
+  CodePipelineResourcesBatchPipelineDeployECSUpdateCodePipelineActionRole74DE45DD:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+        Version: "2012-10-17"
+  CodePipelineResourcesBatchPipelineDeployECSUpdateCodePipelineActionRoleDefaultPolicy52C3E6CC:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ecs:DescribeServices
+              - ecs:DescribeTaskDefinition
+              - ecs:DescribeTasks
+              - ecs:ListTasks
+              - ecs:RegisterTaskDefinition
+              - ecs:TagResource
+              - ecs:UpdateService
+            Effect: Allow
+            Resource: "*"
+          - Action: iam:PassRole
+            Condition:
+              StringEqualsIfExists:
+                iam:PassedToService:
+                  - ec2.amazonaws.com
+                  - ecs-tasks.amazonaws.com
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodePipelineResourcesBatchPipelineArtifactsBucketC90F7E0E
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CodePipelineResourcesBatchPipelineDeployECSUpdateCodePipelineActionRoleDefaultPolicy52C3E6CC
+      Roles:
+        - Ref: CodePipelineResourcesBatchPipelineDeployECSUpdateCodePipelineActionRole74DE45DD
   EventBridgeResourcesBatchRule41307395:
     Type: AWS::Events::Rule
     Properties:
@@ -1664,11 +2211,11 @@ Resources:
                 - ":"
                 - Ref: AWS::AccountId
                 - ":"
-                - Ref: CodePipelineResourcesBackendPipeline12BC99AD
+                - Ref: CodePipelineResourcesBatchPipelineCD71CF92
           Id: Target0
           RoleArn:
             Fn::GetAtt:
-              - CodePipelineResourcesBackendPipelineEventsRole46C61BDE
+              - CodePipelineResourcesBatchPipelineEventsRoleD404B6A7
               - Arn
 Parameters:
   RDSResourcesDBNameParameterF7365EAE:
