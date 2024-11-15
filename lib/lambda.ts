@@ -34,6 +34,12 @@ export class LambdaResources extends Construct {
         allowAllOutbound: true,
       }
     );
+    // ロググループの作成
+    const logGroup = new logs.LogGroup(this, "BackendLambdaLogGroup", {
+      logGroupName: `/lambda/BackendFunction`,
+      retention: logs.RetentionDays.ONE_WEEK, // ログ保持期間を3日間に設定
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にロググループも削除
+    });
 
     // Lambda 関数を作成
     this.lambdaFunction = new lambda.Function(this, "BackendFunction", {
@@ -67,12 +73,10 @@ export class LambdaResources extends Construct {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED, // プライベートサブネットに配置
       },
       securityGroups: [lambdaSecurityGroup],
-    });
-    // ロググループの作成
-    const logGroup = new logs.LogGroup(this, "BackendLambdaLogGroup", {
-      logGroupName: `/lambda/${this.lambdaFunction.functionName}`,
-      retention: logs.RetentionDays.THREE_DAYS, // ログ保持期間を3日間に設定
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にロググループも削除
+      logGroup: logGroup,
+      loggingFormat: lambda.LoggingFormat.JSON,
+      applicationLogLevelV2: lambda.ApplicationLogLevel.WARN,
+      systemLogLevelV2: lambda.SystemLogLevel.WARN,
     });
     // Lambda関数にロググループのパーミッションを付与
     logGroup.grantWrite(this.lambdaFunction);

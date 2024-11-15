@@ -881,6 +881,13 @@ Resources:
           IpProtocol: "-1"
       VpcId:
         Ref: NetworkResourcesVPCD71E3A67
+  LambdaResourcesBackendLambdaLogGroupD59E3598:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /lambda/BackendFunction
+      RetentionInDays: 7
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
   LambdaResourcesBackendFunctionServiceRoleB7200743:
     Type: AWS::IAM::Role
     Properties:
@@ -998,6 +1005,12 @@ Resources:
             Ref: SsmParameterValueitrenderSENTRYDSNbackendC96584B6F00A464EAD1953AFF4B05118Parameter
           ENVIRONMENT: production
       FunctionName: BackendFunction
+      LoggingConfig:
+        ApplicationLogLevel: WARN
+        LogFormat: JSON
+        LogGroup:
+          Ref: LambdaResourcesBackendLambdaLogGroupD59E3598
+        SystemLogLevel: WARN
       PackageType: Image
       Role:
         Fn::GetAtt:
@@ -1017,17 +1030,6 @@ Resources:
       - LambdaResourcesBackendFunctionServiceRoleB7200743
       - NetworkResourcesVPCPrivateSubnet1RouteTableAssociation7A10B50D
       - NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9
-  LambdaResourcesBackendLambdaLogGroupD59E3598:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName:
-        Fn::Join:
-          - ""
-          - - /lambda/
-            - Ref: LambdaResourcesBackendFunctionC9C2709E
-      RetentionInDays: 3
-    UpdateReplacePolicy: Delete
-    DeletionPolicy: Delete
   apigatewayResourcesApiGatewayAccessLogsA65962CB:
     Type: AWS::Logs::LogGroup
     Properties:
