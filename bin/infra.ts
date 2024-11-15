@@ -90,6 +90,9 @@ const eventbridgeResources = new EventBridgeResources(
   ecrResources,
   codepipelineResources
 );
-
 // SNSリソースを追加
-// const snsResources = new SNSResources(stack, "SNSResources", region, accountId);
+const snsResources = new SNSResources(
+  stack,
+  "SNSResources",
+  codepipelineResources
+);
