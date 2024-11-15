@@ -68,5 +68,11 @@ export class LambdaResources extends Construct {
       },
       securityGroups: [lambdaSecurityGroup],
     });
+    // ロググループの作成
+    const logGroup = new logs.LogGroup(this, "BackendLambdaLogGroup", {
+      logGroupName: `/lambda/${this.lambdaFunction.functionName}`,
+      retention: logs.RetentionDays.THREE_DAYS, // ログ保持期間を3日間に設定
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にロググループも削除
+    });
   }
 }

@@ -996,6 +996,17 @@ Resources:
       - LambdaResourcesBackendFunctionServiceRoleB7200743
       - NetworkResourcesVPCPrivateSubnet1RouteTableAssociation7A10B50D
       - NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9
+  LambdaResourcesBackendLambdaLogGroupD59E3598:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Join:
+          - ""
+          - - /lambda/
+            - Ref: LambdaResourcesBackendFunctionC9C2709E
+      RetentionInDays: 3
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
   apigatewayResourcesApiGatewayAccessLogsA65962CB:
     Type: AWS::Logs::LogGroup
     Properties:
