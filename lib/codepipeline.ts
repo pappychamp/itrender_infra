@@ -5,8 +5,8 @@ import * as codepipeline_actions from "aws-cdk-lib/aws-codepipeline-actions";
 import { ECRResources } from "./ecr";
 import { LambdaResources } from "./lambda";
 import * as iam from "aws-cdk-lib/aws-iam";
-import { SNSResources } from "./sns";
 import { ECSResources } from "./ecs";
+
 export class CodePipelineResources extends Construct {
   public readonly backendPipeline: codepipeline.Pipeline;
   public readonly batchPipeline: codepipeline.Pipeline;
@@ -90,6 +90,7 @@ export class CodePipelineResources extends Construct {
     });
 
     // =====Batchのパイプライン=====
+
     // backendPipelineで使用するbuildプロジェクト
     const batchECSUpdateProject = new codebuild.PipelineProject(
       this,
