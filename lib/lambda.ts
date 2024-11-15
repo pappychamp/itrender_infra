@@ -74,5 +74,7 @@ export class LambdaResources extends Construct {
       retention: logs.RetentionDays.THREE_DAYS, // ログ保持期間を3日間に設定
       removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にロググループも削除
     });
+    // Lambda関数にロググループのパーミッションを付与
+    logGroup.grantWrite(this.lambdaFunction);
   }
 }

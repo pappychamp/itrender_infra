@@ -905,6 +905,26 @@ Resources:
     DependsOn:
       - NetworkResourcesVPCPrivateSubnet1RouteTableAssociation7A10B50D
       - NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9
+  LambdaResourcesBackendFunctionServiceRoleDefaultPolicy3EEA2D0C:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - LambdaResourcesBackendLambdaLogGroupD59E3598
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: LambdaResourcesBackendFunctionServiceRoleDefaultPolicy3EEA2D0C
+      Roles:
+        - Ref: LambdaResourcesBackendFunctionServiceRoleB7200743
+    DependsOn:
+      - NetworkResourcesVPCPrivateSubnet1RouteTableAssociation7A10B50D
+      - NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9
   LambdaResourcesBackendFunctionC9C2709E:
     Type: AWS::Lambda::Function
     Properties:
@@ -993,6 +1013,7 @@ Resources:
           - Ref: NetworkResourcesVPCPrivateSubnet1Subnet96D28963
           - Ref: NetworkResourcesVPCPrivateSubnet2Subnet2F126685
     DependsOn:
+      - LambdaResourcesBackendFunctionServiceRoleDefaultPolicy3EEA2D0C
       - LambdaResourcesBackendFunctionServiceRoleB7200743
       - NetworkResourcesVPCPrivateSubnet1RouteTableAssociation7A10B50D
       - NetworkResourcesVPCPrivateSubnet2RouteTableAssociationA346B9C9
