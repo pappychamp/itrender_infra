@@ -30,16 +30,16 @@ export class CloudWatchResources extends Construct {
     });
 
     // CloudWatch Alarmを作成
-    // const alarm = new cloudwatch.Alarm(this, "MyAlarm", {
-    //   metric: metricFilter.metric(),
-    //   threshold: 1,
-    //   evaluationPeriods: 1,
-    //   alarmDescription: "Alarm when ERROR or WARN appears in logs",
-    // });
+    const alarm = new cloudwatch.Alarm(this, "MyAlarm", {
+      metric: metricFilter.metric(),
+      threshold: 1,
+      evaluationPeriods: 1,
+      alarmDescription: "Alarm when ERROR or WARN appears in logs",
+    });
 
-    // // アラームアクションとしてSNSトピックを設定
-    // alarm.addAlarmAction(
-    //   new cloudwatch_actions.SnsAction(snsResources.backendLoggroupSNSTopic)
-    // );
+    // アラームアクションとしてSNSトピックを設定
+    alarm.addAlarmAction(
+      new cloudwatch_actions.SnsAction(snsResources.backendLoggroupSNSTopic)
+    );
   }
 }

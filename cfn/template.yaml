@@ -2416,6 +2416,19 @@ Resources:
         - MetricName: WarnErrorCount
           MetricNamespace: MyApp
           MetricValue: "1"
+  CloudWatchResourcesMyAlarmD8469815:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - Ref: SNSResourcesBackendLoggroupSNSTopic2E3737D8
+      AlarmDescription: Alarm when ERROR or WARN appears in logs
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      MetricName: WarnErrorCount
+      Namespace: MyApp
+      Period: 300
+      Statistic: Average
+      Threshold: 1
 Parameters:
   RDSResourcesDBNameParameterF7365EAE:
     Type: AWS::SSM::Parameter::Value<String>
