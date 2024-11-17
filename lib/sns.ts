@@ -35,7 +35,7 @@ export class SNSResources extends Construct {
       this,
       "CopePipelineChatbotRole",
       {
-        roleName: "pipeline-chatbot-role",
+        roleName: "codepipeline-chatbot-role",
         assumedBy: new iam.ServicePrincipal("chatbot.amazonaws.com"),
       }
     );
