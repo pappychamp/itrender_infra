@@ -91,17 +91,17 @@ const eventbridgeResources = new EventBridgeResources(
   ecrResources,
   codepipelineResources
 );
-// SNSリソースを追加
-const snsResources = new SNSResources(
-  stack,
-  "SNSResources",
-  codepipelineResources
-);
+// // SNSリソースを追加
+// const snsResources = new SNSResources(
+//   stack,
+//   "SNSResources",
+//   codepipelineResources
+// );
 
-// CloudWatchリソースを追加
-const cloudWatchResources = new CloudWatchResources(
-  stack,
-  "CloudWatchResources",
-  lambdaResources,
-  snsResources
-);
+// // CloudWatchリソースを追加
+// const cloudWatchResources = new CloudWatchResources(
+//   stack,
+//   "CloudWatchResources",
+//   lambdaResources,
+//   snsResources
+// );
