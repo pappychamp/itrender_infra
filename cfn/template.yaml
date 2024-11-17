@@ -2305,7 +2305,7 @@ Resources:
         Version: "2012-10-17"
       Topics:
         - Ref: SNSResourcesPipelineSNSTopic0835E43B
-  SNSResourcesChatbotRoleE55A0261:
+  SNSResourcesCopePipelineChatbotRoleF211D4F1:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -2316,13 +2316,13 @@ Resources:
               Service: chatbot.amazonaws.com
         Version: "2012-10-17"
       RoleName: pipeline-chatbot-role
-  SNSResourcesMyChatbotSlackChannelA432EB1A:
+  SNSResourcesCodepipelineChatbotSlackChannelDFFDE953:
     Type: AWS::Chatbot::SlackChannelConfiguration
     Properties:
       ConfigurationName: codepipeline-channel
       IamRoleArn:
         Fn::GetAtt:
-          - SNSResourcesChatbotRoleE55A0261
+          - SNSResourcesCopePipelineChatbotRoleF211D4F1
           - Arn
       SlackChannelId:
         Ref: SsmParameterValueslackcodepipelineidC96584B6F00A464EAD1953AFF4B05118Parameter
@@ -2378,6 +2378,57 @@ Resources:
         - TargetAddress:
             Ref: SNSResourcesPipelineSNSTopic0835E43B
           TargetType: SNS
+  SNSResourcesBackendLoggroupSNSTopic2E3737D8:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: backend-loggroup-sns-topic
+  SNSResourcesBackendLoggroupSlackChannelConfigurationRole6ACFC640:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: chatbot.amazonaws.com
+        Version: "2012-10-17"
+  SNSResourcesBackendLoggroupSlackChannel72C9876B:
+    Type: AWS::Chatbot::SlackChannelConfiguration
+    Properties:
+      ConfigurationName: backend-loggroup-channel
+      IamRoleArn:
+        Fn::GetAtt:
+          - SNSResourcesBackendLoggroupSlackChannelConfigurationRole6ACFC640
+          - Arn
+      SlackChannelId:
+        Ref: SsmParameterValueslackbackendidC96584B6F00A464EAD1953AFF4B05118Parameter
+      SlackWorkspaceId:
+        Ref: SsmParameterValueslackworkspaceidC96584B6F00A464EAD1953AFF4B05118Parameter
+      SnsTopicArns:
+        - Ref: SNSResourcesBackendLoggroupSNSTopic2E3737D8
+  CloudWatchResourcesMyMetricFilterC5952804:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterPattern: ?"ERROR" ?"Error" ?"WARN" ?"Warn" ?"warn" ?"error"
+      LogGroupName:
+        Ref: LambdaResourcesBackendLambdaLogGroupD59E3598
+      MetricTransformations:
+        - MetricName: WarnErrorCount
+          MetricNamespace: MyApp
+          MetricValue: "1"
+  CloudWatchResourcesMyAlarmD8469815:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - Ref: SNSResourcesBackendLoggroupSNSTopic2E3737D8
+      AlarmDescription: Alarm when ERROR or WARN appears in logs
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      MetricName: WarnErrorCount
+      Namespace: MyApp
+      Period: 300
+      Statistic: Average
+      Threshold: 1
 Parameters:
   RDSResourcesDBNameParameterF7365EAE:
     Type: AWS::SSM::Parameter::Value<String>
@@ -2403,4 +2454,7 @@ Parameters:
   SsmParameterValueslackworkspaceidC96584B6F00A464EAD1953AFF4B05118Parameter:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /slack/workspaceid
+  SsmParameterValueslackbackendidC96584B6F00A464EAD1953AFF4B05118Parameter:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /slack/backendid
 

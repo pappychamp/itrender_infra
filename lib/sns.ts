@@ -8,6 +8,7 @@ import { CodePipelineResources } from "./codepipeline";
 
 export class SNSResources extends Construct {
   //   public readonly lambdaFunction: lambda.Function;
+  public readonly backendLoggroupSNSTopic: sns.Topic;
 
   constructor(
     scope: Construct,
@@ -15,6 +16,7 @@ export class SNSResources extends Construct {
     codepipelineResources: CodePipelineResources
   ) {
     super(scope, id);
+    //  ====== CodePipelineのSNS ======
     // SNSトピックの作成
     const pipelineSNSTopic = new sns.Topic(this, "PipelineSNSTopic", {
       displayName: "codepipeline-sns-topic",
@@ -29,29 +31,37 @@ export class SNSResources extends Construct {
       })
     );
     // ChatbotのIAMロール作成
-    const chatbotRole = new iam.Role(this, "ChatbotRole", {
-      roleName: "pipeline-chatbot-role",
-      assumedBy: new iam.ServicePrincipal("chatbot.amazonaws.com"),
-    });
+    const copePipelineChatbotRole = new iam.Role(
+      this,
+      "CopePipelineChatbotRole",
+      {
+        roleName: "pipeline-chatbot-role",
+        assumedBy: new iam.ServicePrincipal("chatbot.amazonaws.com"),
+      }
+    );
 
     // ChatbotのSlackチャンネル設定
-    const slackChannelId = ssm.StringParameter.valueForStringParameter(
-      this,
-      "/slack/codepipelineid"
-    );
+    const codepipelineSlackChannelId =
+      ssm.StringParameter.valueForStringParameter(
+        this,
+        "/slack/codepipelineid"
+      );
     const slackWorkspaceId = ssm.StringParameter.valueForStringParameter(
       this,
       "/slack/workspaceid"
     );
 
-    new chatbot.SlackChannelConfiguration(this, "MyChatbotSlackChannel", {
-      slackChannelConfigurationName: "codepipeline-channel",
-      slackChannelId: slackChannelId, // SlackチャンネルID
-      slackWorkspaceId: slackWorkspaceId, // SlackワークスペースID
-      notificationTopics: [pipelineSNSTopic],
-      role: chatbotRole,
-    });
-
+    new chatbot.SlackChannelConfiguration(
+      this,
+      "CodepipelineChatbotSlackChannel",
+      {
+        slackChannelConfigurationName: "codepipeline-channel",
+        slackChannelId: codepipelineSlackChannelId, // SlackチャンネルID
+        slackWorkspaceId: slackWorkspaceId, // SlackワークスペースID
+        notificationTopics: [pipelineSNSTopic],
+        role: copePipelineChatbotRole,
+      }
+    );
     // CodePipelineに通知を設定
     new notifications.NotificationRule(
       this,
@@ -74,6 +84,29 @@ export class SNSResources extends Construct {
         "codepipeline-pipeline-pipeline-execution-failed",
       ],
       targets: [pipelineSNSTopic],
+    });
+
+    //  ====== lambdaのLogGroupのSNS ======
+    // SNSトピックの作成
+    this.backendLoggroupSNSTopic = new sns.Topic(
+      this,
+      "BackendLoggroupSNSTopic",
+      {
+        displayName: "backend-loggroup-sns-topic",
+      }
+    );
+
+    // ChatbotのSlackチャンネル設定
+    const loggroupSlackChannelId = ssm.StringParameter.valueForStringParameter(
+      this,
+      "/slack/backendid"
+    );
+
+    new chatbot.SlackChannelConfiguration(this, "BackendLoggroupSlackChannel", {
+      slackChannelConfigurationName: "backend-loggroup-channel",
+      slackChannelId: loggroupSlackChannelId, // SlackチャンネルID
+      slackWorkspaceId: slackWorkspaceId, // SlackワークスペースID
+      notificationTopics: [this.backendLoggroupSNSTopic],
     });
   }
 }

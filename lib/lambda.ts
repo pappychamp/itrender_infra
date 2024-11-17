@@ -6,10 +6,10 @@ import { Secret } from "aws-cdk-lib/aws-secretsmanager";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import * as logs from "aws-cdk-lib/aws-logs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
-import { NetworkResources } from "./network";
 
 export class LambdaResources extends Construct {
   public readonly lambdaFunction: lambda.Function;
+  public readonly backendLambdaLogGroup: logs.LogGroup;
 
   constructor(
     scope: Construct,
@@ -35,11 +35,15 @@ export class LambdaResources extends Construct {
       }
     );
     // ロググループの作成
-    const logGroup = new logs.LogGroup(this, "BackendLambdaLogGroup", {
-      logGroupName: `/lambda/BackendFunction`,
-      retention: logs.RetentionDays.ONE_WEEK, // ログ保持期間を3日間に設定
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にロググループも削除
-    });
+    this.backendLambdaLogGroup = new logs.LogGroup(
+      this,
+      "BackendLambdaLogGroup",
+      {
+        logGroupName: `/lambda/BackendFunction`,
+        retention: logs.RetentionDays.ONE_WEEK, // ログ保持期間を3日間に設定
+        removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にロググループも削除
+      }
+    );
 
     // Lambda 関数を作成
     this.lambdaFunction = new lambda.Function(this, "BackendFunction", {
@@ -73,12 +77,12 @@ export class LambdaResources extends Construct {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED, // プライベートサブネットに配置
       },
       securityGroups: [lambdaSecurityGroup],
-      logGroup: logGroup,
+      logGroup: this.backendLambdaLogGroup,
       loggingFormat: lambda.LoggingFormat.JSON,
       applicationLogLevelV2: lambda.ApplicationLogLevel.WARN,
       systemLogLevelV2: lambda.SystemLogLevel.WARN,
     });
     // Lambda関数にロググループのパーミッションを付与
-    logGroup.grantWrite(this.lambdaFunction);
+    this.backendLambdaLogGroup.grantWrite(this.lambdaFunction);
   }
 }

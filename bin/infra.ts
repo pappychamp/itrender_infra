@@ -14,6 +14,7 @@ import { LambdaResources } from "../lib/lambda";
 import { ApiGatewayResources } from "../lib/apigateway";
 import { CodePipelineResources } from "../lib/codepipeline";
 import { SNSResources } from "../lib/sns";
+import { CloudWatchResources } from "../lib/cloudwatch";
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, "Itrender", {
@@ -95,4 +96,12 @@ const snsResources = new SNSResources(
   stack,
   "SNSResources",
   codepipelineResources
+);
+
+// CloudWatchリソースを追加
+const cloudWatchResources = new CloudWatchResources(
+  stack,
+  "CloudWatchResources",
+  lambdaResources,
+  snsResources
 );
