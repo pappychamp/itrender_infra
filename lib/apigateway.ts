@@ -43,7 +43,7 @@ export class ApiGatewayResources extends Construct {
     stage.accessLogSettings = {
       destinationArn: logGroup.logGroupArn,
       format:
-        '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "user":"$context.identity.user","requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath", "status":"$context.status", "errorMessage": "$context.error.message", "protocol":"$context.protocol" }',
+        '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "user":"$context.identity.user","requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","resourcePath":"$context.path", "status":"$context.status", "errorMessage": "$context.error.message", "protocol":"$context.protocol" }',
     };
 
     // API Gateway エンドポイントの URL を取得
