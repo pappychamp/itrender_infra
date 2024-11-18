@@ -1094,7 +1094,7 @@ Resources:
           Fn::GetAtt:
             - apigatewayResourcesApiGatewayAccessLogsA65962CB
             - Arn
-        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "user":"$context.identity.user","requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath", "status":"$context.status", "errorMessage": "$context.error.message", "protocol":"$context.protocol" }'
+        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "user":"$context.identity.user","requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","resourcePath":"$context.path", "status":"$context.status", "errorMessage": "$context.error.message", "protocol":"$context.protocol" }'
       ApiId:
         Ref: apigatewayResourcesBackendApiGW54E5CD70
       AutoDeploy: true
